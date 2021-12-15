@@ -1,8 +1,12 @@
-class APIError(Exception):
+class LineWarning(UserWarning):
     pass
 
 
-class LineWarning(UserWarning):
+class AllParseWarning(UserWarning):
+    pass
+
+
+class APIError(Exception):
     pass
 
 
@@ -15,4 +19,8 @@ class LineValueError(Exception):
 
 
 class DefParseError(Exception):
+    pass
+
+
+class AllParseError(Exception):
     pass
