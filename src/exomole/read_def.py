@@ -1,6 +1,9 @@
-import requests
+from pathlib import Path
 
-from .utils import get_file_raw_text
+from pyvalem.formula import Formula, FormulaParseError
+
+from .exceptions import LineValueError, LineCommentError, DefParseError
+from .utils import get_file_raw_text, parse_exomol_line
 
 
 class Isotope:
@@ -50,21 +53,22 @@ class DefParser:
         molecule_slug=None,
         isotopologue_slug=None,
         dataset_name=None,
-        warn_on_comments=False,
     ):
         self.raw_text = None
+        self.file_name = None
         self._save_raw_text(path, molecule_slug, isotopologue_slug, dataset_name)
         # placeholders to all the attributes
         self.id = None
         self.iso_formula = None
         self.iso_slug = None
         self.dataset_name = None
+        self.version = None
         self.inchi_key = None
         self.isotopes = None
         self.mass = None
         self.symmetry_group = None
         self.irreducible_representations = None
-        self.mas_temp = None
+        self.max_temp = None
         self.num_pressure_broadeners = None
         self.dipole_availability = None
         self.num_cross_sections = None
@@ -80,32 +84,49 @@ class DefParser:
         self.high_energy_complete = None
 
     def _save_raw_text(self, path, molecule_slug, isotopologue_slug, dataset_name):
-        """Save the raw text of a .def file as an instance attribute
+        """
+        Save the raw text of a .def file as an instance attribute
 
         The .def file is either read from the local file system, or requested over the
         ExoMol public API, based on the attributes values.
 
         Parameters
         ----------
-        path : str | Path
+        path : str or Path or None
             Path leading to the .def file.
-        molecule_slug : str
+        molecule_slug : str or None
             Ignored if path is not None.
-        isotopologue_slug : str
+        isotopologue_slug : str or None
             Ignored if path is not None.
-        dataset_name : str
+        dataset_name : str or None
             Ignored if path is not None.
         """
         if path is None:
-            raw_text = get_file_raw_text(
+            self.raw_text = get_file_raw_text(
                 "def", molecule_slug, isotopologue_slug, dataset_name
             )
+            self.file_name = f"{isotopologue_slug}__{dataset_name}.def"
         else:
             with open(path, "r") as fp:
-                raw_text = fp.read()
-        self.raw_text = raw_text
+                self.raw_text = fp.read()
+            self.file_name = Path(path).name
 
     def parse(self, warn_on_comments):
+        """
+        Parse the .def file text from self.raw_text
+
+        Populates all the instance attributes incrementally, util it hits the end of
+        the file, or one of the exceptions is raised, signaling inconsistent .def
+        file.
+
+        Parameters
+        ----------
+        warn_on_comments : bool
+
+        Raises
+        -------
+        DefParseError
+        """
         lines = self.raw_text.split("\n")
         n_orig = len(lines)
 
@@ -114,116 +135,99 @@ class DefParser:
                 lines,
                 n_orig,
                 expected_comment=expected_comment,
-                file_name=file_name,
+                file_name=self.file_name,
                 val_type=val_type,
-                raise_warnings=raise_warnings,
+                warn_on_comments=warn_on_comments,
             )
 
         # catch all the parse_line-originated errors and wrap them in a higher-level
         # error:
         try:
-            kwargs = {
-                "raw_text": exomol_def_raw,
-                "id": parse_line("ID"),
-                "iso_formula": parse_line("IsoFormula"),
-                "iso_slug": parse_line("Iso-slug"),
-                "dataset_name": parse_line("Isotopologue dataset name"),
-                "version": parse_line("Version number with format YYYYMMDD", int),
-                "inchi_key": parse_line("Inchi key of molecule"),
-                "isotopes": [],
-            }
+            self.id = parse_line("ID")
+            self.iso_formula = parse_line("IsoFormula")
+            self.iso_slug = parse_line("Iso-slug")
+            self.dataset_name = parse_line("Isotopologue dataset name")
+            self.version = parse_line("Version number with format YYYYMMDD", int)
+            self.inchi_key = parse_line("Inchi key of molecule")
+            self.isotopes = []
             num_atoms = parse_line("Number of atoms", int)
             try:
-                formula = Formula(kwargs["iso_formula"])
+                formula = Formula(self.iso_formula)
             except FormulaParseError as e:
-                raise DefParseError(f"{str(e)} (raised in {file_name})")
+                raise DefParseError(f"{str(e)} (raised in {self.file_name})")
             if formula.natoms != num_atoms:
-                ds_name = f'{kwargs["iso_slug"]}__{kwargs["dataset_name"]}.def'
-                raise DefParseError(f"Incorrect number of atoms in {ds_name}")
+                raise DefParseError(f"Incorrect number of atoms in {self.file_name}")
             for i in range(num_atoms):
-                isotope_kwargs = {
-                    "number": parse_line(f"Isotope number {i + 1}", int),
-                    "element_symbol": parse_line(f"Element symbol {i + 1}"),
-                }
-                isotope = Isotope(**isotope_kwargs)
-                kwargs["isotopes"].append(isotope)
+                number = parse_line(f"Isotope number {i + 1}", int)
+                element_symbol = parse_line(f"Element symbol {i + 1}")
+                isotope = Isotope(number=number, element_symbol=element_symbol)
+                self.isotopes.append(isotope)
             iso_mass_amu = float(
                 parse_line("Isotopologue mass (Da) and (kg)").split()[0]
             )
-            kwargs.update(
-                {
-                    "mass": iso_mass_amu,
-                    "symmetry_group": parse_line("Symmetry group"),
-                    "irreducible_representations": [],
-                }
-            )
-            num_irreducible_representations = int(
-                parse_line("Number of irreducible representations")
+            self.mass = (iso_mass_amu,)
+            self.symmetry_group = parse_line("Symmetry group")
+            self.irreducible_representations = []
+            num_irreducible_representations = parse_line(
+                "Number of irreducible representations", int
             )
             for _ in range(num_irreducible_representations):
-                ir_kwargs = {
-                    "id": parse_line("Irreducible representation ID", int),
-                    "label": parse_line("Irreducible representation label"),
-                    "nuclear_spin_degeneracy": parse_line(
-                        "Nuclear spin degeneracy", int
-                    ),
-                }
-                ir = IrreducibleRepresentation(**ir_kwargs)
-                kwargs["irreducible_representations"].append(ir)
-            kwargs.update(
-                {
-                    "max_temp": parse_line("Maximum temperature of linelist", float),
-                    "num_pressure_broadeners": parse_line(
-                        "No. of pressure broadeners available", int
-                    ),
-                    "dipole_availability": bool(
-                        parse_line("Dipole availability (1=yes, 0=no)", int)
-                    ),
-                    "num_cross_sections": parse_line(
-                        "No. of cross section files available", int
-                    ),
-                    "num_k_coefficients": parse_line(
-                        "No. of k-coefficient files available", int
-                    ),
-                    "lifetime_availability": bool(
-                        parse_line("Lifetime availability (1=yes, 0=no)", int)
-                    ),
-                    "lande_factor_availability": bool(
-                        parse_line("Lande g-factor availability (1=yes, 0=no)", int)
-                    ),
-                    "num_states": parse_line("No. of states in .states file", int),
-                    "quanta_cases": [],
-                    "quanta": [],
-                }
+                ir_id = parse_line("Irreducible representation ID", int)
+                label = parse_line("Irreducible representation label")
+                nuclear_spin_degeneracy = parse_line("Nuclear spin degeneracy", int)
+                ir = IrreducibleRepresentation(
+                    ir_id=ir_id,
+                    label=label,
+                    nuclear_spin_degeneracy=nuclear_spin_degeneracy,
+                )
+                self.irreducible_representations.append(ir)
+            self.max_temp = parse_line("Maximum temperature of linelist", float)
+            self.num_pressure_broadeners = parse_line(
+                "No. of pressure broadeners available", int
             )
+            self.dipole_availability = bool(
+                parse_line("Dipole availability (1=yes, 0=no)", int)
+            )
+            self.num_cross_sections = parse_line(
+                "No. of cross section files available", int
+            )
+            self.num_k_coefficients = parse_line(
+                "No. of k-coefficient files available", int
+            )
+            self.lifetime_availability = bool(
+                parse_line("Lifetime availability (1=yes, 0=no)", int)
+            )
+            self.lande_factor_availability = bool(
+                parse_line("Lande g-factor availability (1=yes, 0=no)", int)
+            )
+            self.num_states = parse_line("No. of states in .states file", int)
+            self.quanta_cases = []
+            self.quanta = []
             num_quanta_cases = parse_line("No. of quanta cases", int)
-            # TODO: it is not entirely clear if num_quanta and related blocks are nested
-            #       under a quanta case, or not. If they are, I need to change the data
-            #       structures, and rewrite the parser a bit.
+            # TODO: It is not entirely clear if num_quanta and related blocks should
+            #       be nested under a quanta case, or not.
+            #       If they are, I the data structures need to be changed, and the
+            #       parser tweaked.
             for _ in range(num_quanta_cases):
-                kwargs["quanta_cases"].append(
+                self.quanta_cases.append(
                     QuantumCase(label=parse_line("Quantum case label"))
                 )
             num_quanta = parse_line("No. of quanta defined", int)
             for i in range(num_quanta):
-                q_kwargs = {
-                    "label": parse_line(f"Quantum label {i + 1}"),
-                    "format": parse_line(f"Format quantum label {i + 1}"),
-                    "description": parse_line(f"Description quantum label {i + 1}"),
-                }
-                quantum = Quantum(**q_kwargs)
-                kwargs["quanta"].append(quantum)
-            kwargs.update(
-                {
-                    "num_transitions": parse_line("Total number of transitions"),
-                    "num_trans_files": parse_line("No. of transition files"),
-                    "max_wavenumber": parse_line("Maximum wavenumber (in cm-1)"),
-                    "high_energy_complete": parse_line(
-                        "Higher energy with complete set of transitions (in cm-1)"
-                    ),
-                }
+                label = parse_line(f"Quantum label {i + 1}")
+                q_format = parse_line(f"Format quantum label {i + 1}")
+                description = parse_line(f"Description quantum label {i + 1}")
+                quantum = Quantum(
+                    label=label, q_format=q_format, description=description
+                )
+                self.quanta.append(quantum)
+            self.num_transitions = parse_line("Total number of transitions", int)
+            self.num_trans_files = parse_line("No. of transition files", int)
+            self.max_wavenumber = parse_line("Maximum wavenumber (in cm-1)", float)
+            self.high_energy_complete = parse_line(
+                "Higher energy with complete set of transitions (in cm-1)", float
             )
-
-            return ExomolDef(**kwargs)
+            # TODO: This is where I stop right now, although it would be nice to finish
+            #       the whole file one day.
         except (LineValueError, LineCommentError) as e:
             raise DefParseError(str(e))

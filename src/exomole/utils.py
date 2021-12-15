@@ -20,7 +20,7 @@ def get_file_raw_text(
     ----------
     which : str
         Out of {'all', 'def'}
-    molecule_slug, isotopologue_slug, dataset_name : str
+    molecule_slug, isotopologue_slug, dataset_name : str or None
         Optional, ignored if which == 'all'.
 
     Returns
@@ -78,14 +78,14 @@ def parse_exomol_line(
         popped one by one.
     n_orig : int
         The number of lines of the full file (for error raising only).
-    expected_comment : str
+    expected_comment : str or None
         The comment after the # symbol on each line is expected to match the
         passed expected comment.
-    file_name : str
+    file_name : str or None
         The name of the file that lines belonged to (for error raising only).
-    val_type : type
+    val_type : type or None
         The intended type of the parsed value, the value will be converted to.
-    warn_on_comments : bool
+    warn_on_comments : bool or None
         If True, warning will be raised if the parsed comment does not match the
         expected comment.
 

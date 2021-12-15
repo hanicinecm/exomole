@@ -12,3 +12,7 @@ class LineCommentError(Exception):
 
 class LineValueError(Exception):
     pass
+
+
+class DefParseError(Exception):
+    pass
