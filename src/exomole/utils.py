@@ -217,5 +217,5 @@ class DataClass:
 
     def __repr__(self):
         cls_name = self.__class__.__name__
-        attrs_str = ", ".join(f"{attr}={val}" for attr, val in vars(self))
+        attrs_str = ", ".join(f"{attr}={val}" for attr, val in vars(self).items())
         return f"{cls_name}({attrs_str})"

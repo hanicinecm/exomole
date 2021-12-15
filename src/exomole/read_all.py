@@ -25,6 +25,34 @@ class Isotopologue(DataClass):
 
 
 class AllParser:
+    """
+    Examples
+    --------
+    Instantiate the parser:
+    >>> parser = AllParser(path="tests/resources/exomol_data/exomol.all")
+    >>> parser.file_name
+    'exomol.all'
+    >>> parser.raw_text[: 13]  # first 13 characters of the text
+    'EXOMOL.master'
+
+    Parse the exomol.all text:
+    >>> parser.parse(warn_on_comments=True)
+    >>> parser.id
+    'EXOMOL.master'
+    >>> parser.version
+    20210707
+    >>> molecule_parsed = parser.molecules['CaH']
+    >>> type(molecule_parsed)
+    <class 'exomole.read_all.Molecule'>
+    >>> molecule_parsed.names
+    ['Calcium monohydride', 'Calcium(I) hydride']
+    >>> isotopologue_parsed = molecule_parsed.isotopologues['(40Ca)(1H)']
+    >>> isotopologue_parsed.dataset_name
+    'Yadin'
+    >>> isotopologue_parsed.iso_slug
+    '40Ca-1H'
+    """
+
     def __init__(self, path=None):
         self.raw_text = None
         self.file_name = None
@@ -138,8 +166,8 @@ class AllParser:
                 f"match the actual number ({len(all_isotopologues)})!"
             )
 
-        if self.num_datasets != len(all_datasets):
+        if self.num_datasets != len(set(all_datasets)):
             warnings.warn(
                 f"Number of datasets stated ({self.num_datasets}) does not match the "
-                f"actual number ({len(all_datasets)})!"
+                f"actual number ({len(set(all_datasets))})!"
             )

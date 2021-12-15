@@ -7,9 +7,13 @@ from .utils import get_file_raw_text, parse_exomol_line
 from .utils import DataClass
 
 
+# noinspection PyUnresolvedReferences
 class Isotope(DataClass):
     def __init__(self, number, element_symbol):
         super().__init__(number=number, element_symbol=element_symbol)
+
+    def __repr__(self):
+        return f"Isotope({self.number}{self.element_symbol})"
 
 
 class IrreducibleRepresentation(DataClass):
@@ -24,12 +28,54 @@ class QuantumCase(DataClass):
         super().__init__(label=label)
 
 
+# noinspection PyUnresolvedReferences
 class Quantum(DataClass):
     def __init__(self, label, q_format, description):
         super().__init__(label=label, format=q_format, description=description)
 
+    def __repr__(self):
+        return f"Quantum({self.label})"
+
 
 class DefParser:
+    """
+    Examples
+    --------
+    Instantiate the parser:
+    >>> parser = DefParser(
+    ...     path="tests/resources/exomol_data/CaH/40Ca-1H/Yadin/40Ca-1H__Yadin.def"
+    ... )
+    >>> parser.file_name
+    '40Ca-1H__Yadin.def'
+    >>> parser.raw_text[:10]  # first 10 characters of the text
+    'EXOMOL.def'
+
+    Parse the .def file:
+    >>> parser.parse(warn_on_comments=True)
+    >>> parser.id
+    'EXOMOL.def'
+    >>> parser.iso_formula
+    '(40Ca)(1H)'
+    >>> parser.mass
+    40.970416
+    >>> parser.isotopes
+    [Isotope(40Ca), Isotope(1H)]
+    >>> quanta = parser.quanta
+    >>> quanta
+    [Quantum(par), Quantum(v), Quantum(N), Quantum(e/f)]
+    >>> quanta[0].description
+    "total parity: '+' or '-'"
+    >>> parser.lifetime_availability, parser.lande_factor_availability
+    (True, False)
+
+    Additional methods on the parsed data:
+    >>> parser.get_quanta_labels()
+    ['par', 'v', 'N', 'e/f']
+    >>> # parser.lifetime_availability, we expect 9 columns in the .states file
+    >>> parser.number_states_columns_expected()
+    9
+    """
+
     def __init__(
         self,
         path=None,
@@ -148,7 +194,7 @@ class DefParser:
             iso_mass_amu = float(
                 parse_line("Isotopologue mass (Da) and (kg)").split()[0]
             )
-            self.mass = (iso_mass_amu,)
+            self.mass = iso_mass_amu
             self.symmetry_group = parse_line("Symmetry group")
             self.irreducible_representations = []
             num_irreducible_representations = parse_line(
@@ -214,3 +260,13 @@ class DefParser:
             #       the whole file one day.
         except (LineValueError, LineCommentError) as e:
             raise DefParseError(str(e))
+
+    def get_quanta_labels(self):
+        return [q.label for q in self.quanta]
+
+    def number_states_columns_expected(self):
+        return (
+            4
+            + sum([self.lifetime_availability, self.lande_factor_availability])
+            + len(self.get_quanta_labels())
+        )
