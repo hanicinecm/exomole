@@ -4,46 +4,29 @@ from pyvalem.formula import Formula, FormulaParseError
 
 from .exceptions import LineValueError, LineCommentError, DefParseError
 from .utils import get_file_raw_text, parse_exomol_line
+from .utils import DataClass
 
 
-class Isotope:
+class Isotope(DataClass):
     def __init__(self, number, element_symbol):
-        self.number = number
-        self.element_symbol = element_symbol
-
-    def __repr__(self):
-        return f"Isotope({self.number}{self.element_symbol})"
+        super().__init__(number=number, element_symbol=element_symbol)
 
 
-class IrreducibleRepresentation:
+class IrreducibleRepresentation(DataClass):
     def __init__(self, ir_id, label, nuclear_spin_degeneracy):
-        self.id = ir_id
-        self.label = label
-        self.nuclear_spin_degeneracy = nuclear_spin_degeneracy
-
-    def __repr__(self):
-        return (
-            f"IrreducibleRepresentation("
-            f"{self.id}, {self.label}, {self.nuclear_spin_degeneracy})"
+        super().__init__(
+            id=ir_id, label=label, nuclear_spin_degeneracy=nuclear_spin_degeneracy
         )
 
 
-class QuantumCase:
+class QuantumCase(DataClass):
     def __init__(self, label):
-        self.label = label
-
-    def __repr__(self):
-        return f"QuantumCase({self.label})"
+        super().__init__(label=label)
 
 
-class Quantum:
+class Quantum(DataClass):
     def __init__(self, label, q_format, description):
-        self.label = label
-        self.format = q_format
-        self.description = description
-
-    def __repr__(self):
-        return f"Quantum({self.label}, {self.format}, {self.description})"
+        super().__init__(label=label, format=q_format, description=description)
 
 
 class DefParser:

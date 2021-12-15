@@ -208,3 +208,14 @@ def get_num_columns(file_path):
     for chunk in load_dataframe_chunks(file_path, chunk_size=1):
         _, num_cols = chunk.shape
         return int(num_cols)
+
+
+class DataClass:
+    def __init__(self, **kwargs):
+        for attr, val in kwargs.items():
+            setattr(self, attr, val)
+
+    def __repr__(self):
+        cls_name = self.__class__.__name__
+        attrs_str = ", ".join(f"{attr}={val}" for attr, val in vars(self))
+        return f"{cls_name}({attrs_str})"
