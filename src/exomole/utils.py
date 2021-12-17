@@ -1,9 +1,16 @@
-import requests
 import warnings
+from pathlib import Path
 
 import pandas
+import requests
 
-from .exceptions import APIError, LineWarning, LineCommentError, LineValueError
+from .exceptions import (
+    APIError,
+    LineWarning,
+    LineCommentError,
+    LineValueError,
+    DataParseError,
+)
 
 
 def get_file_raw_text_over_api(
@@ -152,39 +159,77 @@ def parse_exomol_line(
 
 
 def load_dataframe_chunks(
-    file_path, chunk_size, column_names=None, index_col=None, dtype=None
+    file_path,
+    chunk_size,
+    first_col_is_index=False,
+    column_names=None,
+    dtype=None,
+    check_num_columns=True,
 ):
     """
-    Loads chunks of either .states.bz2 file or .trans.bz2 file from the local file
+    Generates chunks of a compressed ExoMol data file.
+
+    Chunks of either .states.bz2 file or .trans.bz2 file are loaded from the local file
     system with the specified chunk size.
+    Generator of pandas.DataFrames is returned.
+    No decompression is necessary beforehand.
+    If `column_names` are passed, and `check_num_columns` is True, it verifies that
+    `len(column_names)` matches to the number of columns in the file,
+    otherwise an exception is raised.
 
     Parameters
     ----------
     file_path : str or Path
-        Path to the file I want to load in - either .states or .trans file (bz2).
+        Path to the .bz2 compressed file I want to load. Either .states or .trans file.
     chunk_size : int
-        Appropriate value depends on RAM
-    column_names : list of str or None
-        Optional column names of the file loaded. If the index_column is passed and > 1,
-        the column_names are without the index column.
-    index_col : int or None
-        Optional index column number, None by default.
-    dtype : type or None
-        Optional data type to cast to pandas.read_csv
+        Appropriate value depending on RAM available.
+    first_col_is_index : bool
+        If true, the first data column values are set as the chunk index.
+    column_names : list of str, optional
+        Column names of the file loaded. If `first_column_is_index` is True,
+        the `column_names` *do not contain* the index (first) column.
+    dtype : type, optional
+        Data type to cast to pandas.read_csv. By default, data type determination is
+        left on pandas.
+    check_num_columns : bool, optional
+        If True and `column_names` passed, check is performed to verify that the
+        `column_names` are consistent with the number of columns in the data file.
+        This check will likely result in some slowdown as the file will be decompressed
+        twice.
 
     Returns
     -------
     df_chunks : pandas.io.parsers.TextFileReader
         Generator of pandas.DataFrame chunks. Access by `for chunk in df_chunks: ...`,
         where each chunk is a pandas.DataFrame.
+
+    Raises
+    ------
+    DataParseError
+        When `check_num_columns` is True and `column_names` are inconsistent with number
+        of columns in the read data file.
     """
-    # TODO
+    if check_num_columns and column_names:
+        num_cols = get_num_columns(file_path)
+        if first_col_is_index:
+            if num_cols != len(column_names) + 1:
+                raise DataParseError(
+                    f"Data file has {num_cols} columns, but index + columns "
+                    f"{column_names} passed."
+                )
+        else:
+            if num_cols != len(column_names):
+                raise DataParseError(
+                    f"Data file has {num_cols} columns, but columns {column_names} "
+                    f"passed."
+                )
+
     df_chunks = pandas.read_csv(
         file_path,
         compression="bz2",
         sep=r"\s+",
         header=None,
-        index_col=index_col,
+        index_col=None if not first_col_is_index else 0,
         names=column_names,
         chunksize=chunk_size,
         iterator=True,

@@ -26,9 +26,13 @@ class DefParseError(Exception):
     pass
 
 
-class StatesParseError(Exception):
+class DataParseError(Exception):
     pass
 
 
-class TransParseError(Exception):
+class StatesParseError(DataParseError):
+    pass
+
+
+class TransParseError(DataParseError):
     pass

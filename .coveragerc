@@ -1,3 +1,5 @@
 [run]
 omit =
-    *tests*
+    tests/*
+    src/exomole/__init__.py
+    src/exomole/exceptions.py
