@@ -48,7 +48,8 @@ def test_too_many_columns(monkeypatch):
     with pytest.raises(
         DataParseError,
         match=re.escape(
-            "Data file has 5 columns, but columns ['a', 'b', 'c', 'd'] passed."
+            "dummy_data_int_5x5.bz2 has 5 columns, "
+            "but columns ['a', 'b', 'c', 'd'] passed."
         ),
     ):
         for _ in load_dataframe_chunks(data_path, 1, column_names="a b c d".split()):
@@ -57,7 +58,8 @@ def test_too_many_columns(monkeypatch):
     with pytest.raises(
         DataParseError,
         match=re.escape(
-            "Data file has 5 columns, but index + columns ['a', 'b', 'c'] passed."
+            "dummy_data_int_5x5.bz2 has 5 columns, "
+            "but index + columns ['a', 'b', 'c'] passed."
         ),
     ):
         for _ in load_dataframe_chunks(
@@ -71,8 +73,8 @@ def test_not_enough_columns(monkeypatch):
     with pytest.raises(
         DataParseError,
         match=re.escape(
-            "Data file has 5 columns, but columns ['a', 'b', 'c', 'd', 'e', 'f'] "
-            "passed."
+            f"dummy_data_int_5x5.bz2 has 5 columns, "
+            f"but columns ['a', 'b', 'c', 'd', 'e', 'f'] passed."
         ),
     ):
         for _ in load_dataframe_chunks(
@@ -83,8 +85,8 @@ def test_not_enough_columns(monkeypatch):
     with pytest.raises(
         DataParseError,
         match=re.escape(
-            "Data file has 5 columns, but index + columns ['a', 'b', 'c', 'd', 'e'] "
-            "passed."
+            f"dummy_data_int_5x5.bz2 has 5 columns, "
+            f"but index + columns ['a', 'b', 'c', 'd', 'e'] passed."
         ),
     ):
         for _ in load_dataframe_chunks(

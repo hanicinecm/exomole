@@ -1,3 +1,9 @@
+"""
+Module containing all the custom Exceptions and Warnings used in the
+`exomole` package.
+"""
+
+
 class APIError(Exception):
     pass
 

@@ -1,3 +1,7 @@
+"""
+TODO: add the module documentation
+"""
+
 import warnings
 from pathlib import Path
 
@@ -183,7 +187,7 @@ def load_dataframe_chunks(
         Path to the .bz2 compressed file I want to load. Either .states or .trans file.
     chunk_size : int
         Appropriate value depending on RAM available.
-    first_col_is_index : bool
+    first_col_is_index : bool, optional
         If true, the first data column values are set as the chunk index.
     column_names : list of str, optional
         Column names of the file loaded. If `first_column_is_index` is True,
@@ -210,17 +214,18 @@ def load_dataframe_chunks(
         of columns in the read data file.
     """
     if check_num_columns and column_names:
+        file_name = Path(file_path).name
         num_cols = get_num_columns(file_path)
         if first_col_is_index:
             if num_cols != len(column_names) + 1:
                 raise DataParseError(
-                    f"Data file has {num_cols} columns, but index + columns "
+                    f"{file_name} has {num_cols} columns, but index + columns "
                     f"{column_names} passed."
                 )
         else:
             if num_cols != len(column_names):
                 raise DataParseError(
-                    f"Data file has {num_cols} columns, but columns {column_names} "
+                    f"{file_name} has {num_cols} columns, but columns {column_names} "
                     f"passed."
                 )
 

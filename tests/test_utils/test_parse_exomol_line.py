@@ -23,7 +23,9 @@ def test_line_value_error():
     with pytest.raises(LineValueError, match=r".*Unexpected value type.*line 1.*"):
         parse_exomol_line(lines, 2, val_type=int, warn_on_comments=True)
     with pytest.raises(LineValueError, match=r".*Unexpected value type.*line 2.*poo.*"):
-        parse_exomol_line(lines, 2, val_type=float, warn_on_comments=True, file_name='poo')
+        parse_exomol_line(
+            lines, 2, val_type=float, warn_on_comments=True, file_name="poo"
+        )
 
 
 def test_end_of_lines_value_error():
@@ -31,13 +33,15 @@ def test_end_of_lines_value_error():
     len_lines = len(lines)
     with pytest.raises(LineValueError, match="Run out of lines"):
         while True:
-            parse_exomol_line(lines, len_lines, file_name='foo', warn_on_comments=True)
+            parse_exomol_line(lines, len_lines, file_name="foo", warn_on_comments=True)
 
 
 def test_blank_line_warning():
     lines = ["       ", "first_val_after_blank # comment", "last_val # comment"]
     with pytest.warns(LineWarning, match=r".*Empty line.*line 1.*foo.*"):
-        val = parse_exomol_line(lines, len(lines), warn_on_comments=True, file_name='foo')
+        val = parse_exomol_line(
+            lines, len(lines), warn_on_comments=True, file_name="foo"
+        )
     assert val == "first_val_after_blank"
 
 
@@ -50,7 +54,7 @@ def test_unexpected_comment_not_warned():
             num_lines,
             expected_comment="expected_comment",
             warn_on_comments=False,
-            file_name='file_name'
+            file_name="file_name",
         )
     assert not record
 
@@ -60,7 +64,11 @@ def test_unexpected_comment_warned():
     num_lines = len(lines)
     with pytest.warns(LineWarning, match=".*Unexpected comment.*line 1.*file_name.*"):
         parse_exomol_line(
-            lines, num_lines, expected_comment="expected_comment", warn_on_comments=True, file_name='file_name'
+            lines,
+            num_lines,
+            expected_comment="expected_comment",
+            warn_on_comments=True,
+            file_name="file_name",
         )
 
 

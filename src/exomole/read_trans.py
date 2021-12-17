@@ -1,3 +1,7 @@
+"""
+TODO: add the module documentation
+"""
+
 from pathlib import Path
 
 from .exceptions import TransParseError
