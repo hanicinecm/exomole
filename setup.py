@@ -4,14 +4,14 @@ from pathlib import Path
 root = Path(__file__).parent.resolve()
 
 # Get the long description from the README file
-long_description = (root / "README.md").read_text(encoding="utf-8")
+long_description = (root / "README.rst").read_text(encoding="utf-8")
 
 setup(
     name="exomole",
     version="0.1.0",
     description="A package for parsing and sanitization of Exomol Database data files",
     long_description=long_description,
-    long_description_content_type="text/markdown",
+    long_description_content_type="text/x-rst",
     url="https://github.com/hanicinecm/exomole/",
     author="Martin Hanicinec",
     author_email="hanicinecm@gmail.com",
@@ -35,7 +35,7 @@ setup(
     python_requires=">=3.6",
     install_requires=["pandas", "requests", "pyvalem>=2.3"],
     extras_require={
-        "dev": ["check-manifest", "pytest", "tox", "black", "coverage", "ipython"],
+        "dev": ["check-manifest", "pytest-cov", "tox", "black", "ipython"],
     },
     project_urls={
         "Bug Reports": "https://github.com/hanicinecm/exomole/issues",
