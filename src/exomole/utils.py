@@ -252,14 +252,12 @@ def get_num_columns(file_path):
     -------
     int
     """
-    # TODO
     for chunk in load_dataframe_chunks(file_path, chunk_size=1):
         _, num_cols = chunk.shape
         return int(num_cols)
 
 
 class DataClass:
-    # TODO
     def __init__(self, **kwargs):
         for attr, val in kwargs.items():
             setattr(self, attr, val)

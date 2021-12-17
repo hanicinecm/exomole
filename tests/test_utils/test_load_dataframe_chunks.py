@@ -132,6 +132,7 @@ def test_load_data_no_index(monkeypatch):
         assert list(chunk.columns) == "a b c d e".split()
         assert list(chunk.index) == [0, 1, 2, 3, 4]
         assert str(chunk.loc[4, "e"]) == "24.0"
+        assert chunk.shape == (5, 5)
 
 
 def test_load_data_with_index(monkeypatch):
@@ -148,6 +149,7 @@ def test_load_data_with_index(monkeypatch):
     ):
         assert list(chunk.columns) == "a b c d".split()
         assert list(chunk.index) == [int(i * 5)]
+        assert chunk.shape == (1, 4)
 
 
 def test_load_data_with_index_no_columns(monkeypatch):
@@ -158,3 +160,4 @@ def test_load_data_with_index_no_columns(monkeypatch):
         assert list(chunk.columns) == [1, 2, 3, 4]
         assert list(chunk.index) == [0, 5, 10, 15, 20]
         assert str(chunk.loc[20, 4]) == "24"
+        assert chunk.shape == (5, 4)
