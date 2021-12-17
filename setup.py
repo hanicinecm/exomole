@@ -8,7 +8,7 @@ long_description = (root / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="exomole",
-    version="0.0.0",
+    version="0.1.0",
     description="A package for parsing and sanitization of Exomol Database data files",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -26,7 +26,6 @@ setup(
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
-        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3 :: Only",
         "Operating System :: OS Independent",
     ],
@@ -36,7 +35,7 @@ setup(
     python_requires=">=3.6",
     install_requires=["pandas", "requests", "pyvalem>=2.3"],
     extras_require={
-        "dev": ["check-manifest", "pytest", "black", "coverage", "ipython"],
+        "dev": ["check-manifest", "pytest", "tox", "black", "coverage", "ipython"],
     },
     project_urls={
         "Bug Reports": "https://github.com/hanicinecm/exomole/issues",
