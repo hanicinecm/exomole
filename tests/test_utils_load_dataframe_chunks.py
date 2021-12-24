@@ -4,7 +4,7 @@ import pytest
 
 import exomole
 from exomole.utils import load_dataframe_chunks, DataParseError
-from tests import resources_path
+from . import resources_path
 
 
 data_path = resources_path / "dummy_data_5x5_int.bz2"
