@@ -76,7 +76,7 @@ class DefParser:
     Additional methods on the parsed data:
     >>> parser.get_quanta_labels()
     ['par', 'v', 'N', 'e/f']
-    >>> # parser.lifetime_availability, we expect 9 columns in the .states file
+    >>> # with parser.lifetime_availability, we expect 9 columns in the .states file
     >>> parser.number_states_columns_expected()
     9
     """

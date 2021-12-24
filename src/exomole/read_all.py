@@ -13,11 +13,16 @@ from .utils import get_file_raw_text_over_api, parse_exomol_line
 from .utils import DataClass
 
 
+# noinspection PyUnresolvedReferences
 class Molecule(DataClass):
     def __init__(self, names, formula, isotopologues):
         super().__init__(names=names, formula=formula, isotopologues=isotopologues)
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.formula})"
 
+
+# noinspection PyUnresolvedReferences
 class Isotopologue(DataClass):
     def __init__(self, inchi_key, iso_slug, iso_formula, dataset_name, version):
         super().__init__(
@@ -27,6 +32,9 @@ class Isotopologue(DataClass):
             dataset_name=dataset_name,
             version=version,
         )
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.iso_slug})"
 
 
 class AllParser:
@@ -52,6 +60,10 @@ class AllParser:
     >>> molecule_parsed.names
     ['Calcium monohydride', 'Calcium(I) hydride']
     >>> isotopologue_parsed = molecule_parsed.isotopologues['(40Ca)(1H)']
+    >>> isotopologue_parsed
+    Isotopologue(40Ca-1H)
+    >>> type(isotopologue_parsed)
+    <class 'exomole.read_all.Isotopologue'>
     >>> isotopologue_parsed.dataset_name
     'Yadin'
     >>> isotopologue_parsed.iso_slug
