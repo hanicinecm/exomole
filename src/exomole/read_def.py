@@ -1,13 +1,14 @@
 """
 TODO: add the module documentation
 """
+# TODO: write all docstrings
 
 from pathlib import Path
 
 from pyvalem.formula import Formula, FormulaParseError
 
 from .exceptions import LineValueError, LineCommentError, DefParseError
-from .utils import get_file_raw_text, parse_exomol_line
+from .utils import get_file_raw_text_over_api, parse_exomol_line
 from .utils import DataClass
 
 
@@ -135,7 +136,7 @@ class DefParser:
             Ignored if path is not None.
         """
         if path is None:
-            self.raw_text = get_file_raw_text(
+            self.raw_text = get_file_raw_text_over_api(
                 "def", molecule_slug, isotopologue_slug, dataset_name
             )
             self.file_name = f"{isotopologue_slug}__{dataset_name}.def"

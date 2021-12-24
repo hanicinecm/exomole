@@ -1,6 +1,7 @@
 """
 TODO: add the module documentation
 """
+# TODO: write all docstrings
 
 from pathlib import Path
 import warnings
@@ -8,7 +9,7 @@ import warnings
 from pyvalem.formula import Formula, FormulaParseError
 
 from .exceptions import AllParseError
-from .utils import get_file_raw_text, parse_exomol_line
+from .utils import get_file_raw_text_over_api, parse_exomol_line
 from .utils import DataClass
 
 
@@ -71,7 +72,7 @@ class AllParser:
 
     def _save_raw_text(self, path):
         if path is None:
-            self.raw_text = get_file_raw_text("all")
+            self.raw_text = get_file_raw_text_over_api("all")
             self.file_name = "exomol.all"
         else:
             with open(path, "r") as fp:

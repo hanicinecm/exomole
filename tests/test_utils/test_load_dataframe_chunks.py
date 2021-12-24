@@ -7,7 +7,7 @@ from exomole.utils import load_dataframe_chunks, DataParseError
 from .. import resources_path
 
 
-data_path = resources_path / "dummy_data_int_5x5.bz2"
+data_path = resources_path / "dummy_data_5x5_int.bz2"
 
 
 @pytest.mark.parametrize("chunk_size, num_chunks", ((1, 5), (2, 3), (5, 1), (50, 1)))
@@ -48,7 +48,7 @@ def test_too_many_columns(monkeypatch):
     with pytest.raises(
         DataParseError,
         match=re.escape(
-            "dummy_data_int_5x5.bz2 has 5 columns, "
+            "dummy_data_5x5_int.bz2 has 5 columns, "
             "but columns ['a', 'b', 'c', 'd'] passed."
         ),
     ):
@@ -58,7 +58,7 @@ def test_too_many_columns(monkeypatch):
     with pytest.raises(
         DataParseError,
         match=re.escape(
-            "dummy_data_int_5x5.bz2 has 5 columns, "
+            "dummy_data_5x5_int.bz2 has 5 columns, "
             "but index + columns ['a', 'b', 'c'] passed."
         ),
     ):
@@ -73,7 +73,7 @@ def test_not_enough_columns(monkeypatch):
     with pytest.raises(
         DataParseError,
         match=re.escape(
-            f"dummy_data_int_5x5.bz2 has 5 columns, "
+            f"dummy_data_5x5_int.bz2 has 5 columns, "
             f"but columns ['a', 'b', 'c', 'd', 'e', 'f'] passed."
         ),
     ):
@@ -85,7 +85,7 @@ def test_not_enough_columns(monkeypatch):
     with pytest.raises(
         DataParseError,
         match=re.escape(
-            f"dummy_data_int_5x5.bz2 has 5 columns, "
+            f"dummy_data_5x5_int.bz2 has 5 columns, "
             f"but index + columns ['a', 'b', 'c', 'd', 'e'] passed."
         ),
     ):

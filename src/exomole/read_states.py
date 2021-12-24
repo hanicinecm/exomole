@@ -49,6 +49,10 @@ def states_chunks(states_path, chunk_size, columns):
     ------
     StatesParseError
         If len(columns) inconsistent with the number of columns in the .states file.
+
+    Examples
+    --------
+    >>> # TODO: Add an example.
     """
     try:
         chunks = load_dataframe_chunks(

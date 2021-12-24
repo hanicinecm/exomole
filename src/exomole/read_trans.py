@@ -12,7 +12,7 @@ def trans_chunks(trans_paths, chunk_size):
     """
     Get a generator of chunks of the dataset .trans file.
 
-    Generator of pd.DataFrame chunks of all the .trans passed as the trans_paths
+    Generator of pd.DataFrame chunks of all the .trans files passed as the trans_paths
     argument.
     The columns are auto-named as "i", "f", "A_if" [, "v_if"]
     The "i" and "f" columns will correspond to the index of the DataFrames yielded by
@@ -32,14 +32,17 @@ def trans_chunks(trans_paths, chunk_size):
     Yields
     ------
     trans_chunk : pd.DataFrame
-        Generated chunks of the .trans file, each is a pd.DataFrame with auto-named
-        columns.
+        Generated chunks of all the .trans files, each is a pd.DataFrame with
+        auto-named columns.
 
     Raises
     ------
     TransParseError
         If the first .trans file has number of columns other than {3, 4}.
 
+    Examples
+    --------
+    >>> # TODO: Add an example.
     """
     trans_paths = sorted(trans_paths)
 
@@ -51,6 +54,7 @@ def trans_chunks(trans_paths, chunk_size):
         raise TransParseError(
             f"Unexpected number of columns in {Path(trans_paths[0]).name}: {num_cols}"
         )
+    assert num_cols in {3, 4}
     # yield all the chunks from all the files:
     for file_path in trans_paths:
         chunks = load_dataframe_chunks(
