@@ -8,7 +8,7 @@ tested there more properly.
 
 import pytest
 
-from .. import resources_path
+from tests import resources_path
 from exomole.exceptions import StatesParseError
 from exomole.read_states import states_chunks
 

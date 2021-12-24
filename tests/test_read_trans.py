@@ -11,7 +11,7 @@ import pytest
 import exomole
 from exomole.exceptions import TransParseError
 from exomole.read_trans import trans_chunks
-from .. import resources_path
+from tests import resources_path
 
 dummy_trans_paths = list(
     resources_path.glob("dummy_trans_5x4_int_int_float_float.trans*.bz2")
