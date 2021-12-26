@@ -23,6 +23,7 @@ class Isotope(DataClass):
     number : int
     element_symbol : str
     """
+
     def __init__(self, number, element_symbol):
         super().__init__(number=number, element_symbol=element_symbol)
 
@@ -43,6 +44,7 @@ class IrreducibleRepresentation(DataClass):
     label : str
     nuclear_spin_degeneracy : int
     """
+
     def __init__(self, ir_id, label, nuclear_spin_degeneracy):
         super().__init__(
             id=ir_id, label=label, nuclear_spin_degeneracy=nuclear_spin_degeneracy
@@ -59,6 +61,7 @@ class QuantumCase(DataClass):
     ----------
     label : str
     """
+
     def __init__(self, label):
         super().__init__(label=label)
 
@@ -77,6 +80,7 @@ class Quantum(DataClass):
         The quantum format as specified by the .def file
     description : str
     """
+
     def __init__(self, label, q_format, description):
         super().__init__(label=label, format=q_format, description=description)
 

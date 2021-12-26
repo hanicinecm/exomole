@@ -174,7 +174,7 @@ class AllParser:
                     warnings.warn(
                         f"{mol_formula} lists more than one dataset for isotopologue "
                         f"{iso_formula}. Ignoring {iso_dataset_name}",
-                        AllParseWarning
+                        AllParseWarning,
                     )
                     molecules_with_duplicate_isotopologues.append(mol_formula)
 
@@ -190,12 +190,12 @@ class AllParser:
             warnings.warn(
                 f"Number of isotopologues stated ({self.num_isotopologues}) does not "
                 f"match the actual number ({len(all_isotopologues)})!",
-                AllParseWarning
+                AllParseWarning,
             )
 
         if self.num_datasets != len(set(all_datasets)):
             warnings.warn(
                 f"Number of datasets stated ({self.num_datasets}) does not match the "
                 f"actual number ({len(set(all_datasets))})!",
-                AllParseWarning
+                AllParseWarning,
             )
