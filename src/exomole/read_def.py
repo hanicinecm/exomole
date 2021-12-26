@@ -115,6 +115,8 @@ class DefParser:
     Attributes
     ----------
     raw_text : str
+    file_name : str
+    version : int
     iso_formula : str
     iso_slug : str
     isotopes : list of Isotope
