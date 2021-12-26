@@ -1,7 +1,6 @@
 """
 TODO: add the module documentation
 """
-# TODO: write all docstrings
 
 from pathlib import Path
 
@@ -14,6 +13,16 @@ from .utils import DataClass
 
 # noinspection PyUnresolvedReferences
 class Isotope(DataClass):
+    """
+    A data class representing Isotope instances.
+
+    All the parameters passed are stored as instance attributes.
+
+    Parameters
+    ----------
+    number : int
+    element_symbol : str
+    """
     def __init__(self, number, element_symbol):
         super().__init__(number=number, element_symbol=element_symbol)
 
@@ -22,6 +31,18 @@ class Isotope(DataClass):
 
 
 class IrreducibleRepresentation(DataClass):
+    """
+    A data class representing instances of irreducible representations.
+
+    All the parameters passed are stored as instance attributes.
+
+    Parameters
+    ----------
+    ir_id : str
+        ID of the irreducible representation
+    label : str
+    nuclear_spin_degeneracy : int
+    """
     def __init__(self, ir_id, label, nuclear_spin_degeneracy):
         super().__init__(
             id=ir_id, label=label, nuclear_spin_degeneracy=nuclear_spin_degeneracy
@@ -29,12 +50,33 @@ class IrreducibleRepresentation(DataClass):
 
 
 class QuantumCase(DataClass):
+    """
+    A data class representing the quantum case instances.
+
+    All the parameters passed are stored as instance attributes.
+
+    Parameters
+    ----------
+    label : str
+    """
     def __init__(self, label):
         super().__init__(label=label)
 
 
 # noinspection PyUnresolvedReferences
 class Quantum(DataClass):
+    """
+    A data class representing the quanta instances.
+
+    All the parameters passed are stored as instance attributes.
+
+    Parameters
+    ----------
+    label : str
+    q_format : str
+        The quantum format as specified by the .def file
+    description : str
+    """
     def __init__(self, label, q_format, description):
         super().__init__(label=label, format=q_format, description=description)
 
@@ -44,6 +86,54 @@ class Quantum(DataClass):
 
 class DefParser:
     """
+    Class handling parsing of any particular .def file.
+
+    Parses the .def file specified either by the `path` argument passed and leading to
+    the .def file on the local file system, or by the trio of `molecule_slug`,
+    `isotopologue_slug` and `dataset_name` arguments, in which case the .def file
+    is requested via the ExoMol public API.
+    Instantiating the class only saves the `raw_text` attribute, which gets parsed
+    with the `parse` method into all the available info. All the *relevant* attributes
+    are listed in the *Attributes* section.
+
+    Parameters
+    ----------
+    path : str or Path, optional
+        The path leading to the .def file. If supplied, all the other arguments are
+        simply ignored.
+    molecule_slug : str, optional
+        Only required, if the `path` argument is not passed.
+    isotopologue_slug : str, optional
+        Only required, if the `path` argument is not passed.
+    dataset_name : str, optional
+        Only required, if the `path` argument is not passed.
+
+    Attributes
+    ----------
+    raw_text : str
+    iso_formula : str
+    iso_slug : str
+    isotopes : list of Isotope
+    lifetime_availability : bool
+    lande_factor_availability : bool
+    quanta : list of Quanta
+
+    Raises
+    ------
+    APIError
+        if `path` not passed and the ExoMol API request call results in an unsuccessful
+        response.
+
+    Notes
+    -----
+    See the ExoMol file standard as defined in the ExoMol release paper [1]_.
+
+    References
+    ----------
+    .. [1] Tennyson J, et al. The ExoMol database: molecular line lists for
+       exoplanet and other hot atmospheres. J Mol Spectrosc 2016;327:73–94.
+       doi: 10.1016/j.jms.2016.05.002
+
     Examples
     --------
     Instantiate the parser:
@@ -126,14 +216,15 @@ class DefParser:
 
         Parameters
         ----------
-        path : str or Path or None
-            Path leading to the .def file.
-        molecule_slug : str or None
-            Ignored if path is not None.
+        path : str or Path, optional
+            Path leading to the .def file. If supplied, all the other arguments are
+            ignored.
+        molecule_slug : str, optional
+            Ignored if `path` is passed.
         isotopologue_slug : str or None
-            Ignored if path is not None.
-        dataset_name : str or None
-            Ignored if path is not None.
+            Ignored if `path` is passed.
+        dataset_name : str, optional
+            Ignored if `path` is passed.
         """
         if path is None:
             self.raw_text = get_file_raw_text_over_api(
@@ -147,7 +238,7 @@ class DefParser:
 
     def parse(self, warn_on_comments):
         """
-        Parse the .def file text from self.raw_text
+        Parse the .def file text from the `raw_text` attribute.
 
         Populates all the instance attributes incrementally, util it hits the end of
         the file, or one of the exceptions is raised, signaling inconsistent .def
@@ -156,10 +247,31 @@ class DefParser:
         Parameters
         ----------
         warn_on_comments : bool
+            If `True`, the comments behind the `#` symbol on each line are checked
+            against some expected comments (hard-coded in the method) and the
+            LineWarning is raised if they do not match.
 
         Raises
         -------
         DefParseError
+            Raised if value on any line cannot be cast to the expected type, or if
+            the parser runs out of lines. This error signals an inconsistent .def
+            file. Also raised when any other inconsistencies are detected, such as
+            inconsistent number of atoms, formula not supported by PyValem package,
+            etc.
+
+        Warns
+        -----
+        LineWarning
+            Raised if `warns_on_comments` is True and if the comment on any line does
+            not match the expected text hard-coded in this method.
+
+        Warnings
+        --------
+        Currently the parser stops after the *High Energy Complete* line and does not
+        parse the rest of the .def file, as the info beyond this point in the .def
+        file was not needed for the data product application which served as my
+        motivation to write this package.
         """
         lines = self.raw_text.split("\n")
         n_orig = len(lines)
@@ -240,7 +352,7 @@ class DefParser:
             num_quanta_cases = parse_line("No. of quanta cases", int)
             # TODO: It is not entirely clear if num_quanta and related blocks should
             #       be nested under a quanta case, or not.
-            #       If they are, I the data structures need to be changed, and the
+            #       If they are, the data structures need to be changed, and the
             #       parser tweaked.
             for _ in range(num_quanta_cases):
                 self.quanta_cases.append(
@@ -267,9 +379,29 @@ class DefParser:
             raise DefParseError(str(e))
 
     def get_quanta_labels(self):
+        """
+        Quanta labels for all the quanta extracted from the parsed .def file.
+        The `parse` method must have been called first and finished.
+
+        Returns
+        -------
+        list of str
+        """
         return [q.label for q in self.quanta]
 
     def number_states_columns_expected(self):
+        """
+        Number of columns all together expected in the associated .states file
+        belonging to the same data-set.
+
+        This number depends on the number of quanta parsed from the .def file, as well
+        as the `lifetime_availability` and the `lande_factor_availability` attributes
+        also extracted from the .def file text.
+
+        Returns
+        -------
+        int
+        """
         return (
             4
             + sum([self.lifetime_availability, self.lande_factor_availability])

@@ -8,7 +8,7 @@ import warnings
 
 from pyvalem.formula import Formula, FormulaParseError
 
-from .exceptions import AllParseError
+from .exceptions import AllParseError, AllParseWarning
 from .utils import get_file_raw_text_over_api, parse_exomol_line
 from .utils import DataClass
 
@@ -92,6 +92,14 @@ class AllParser:
             self.file_name = Path(path).name
 
     def parse(self, warn_on_comments):
+        """
+        Warns
+        -----
+        AllParseWarning
+            When?
+        LineWarning
+            When?
+        """
         lines = self.raw_text.split("\n")
         n_orig = len(lines)
 
@@ -165,7 +173,8 @@ class AllParser:
                 else:
                     warnings.warn(
                         f"{mol_formula} lists more than one dataset for isotopologue "
-                        f"{iso_formula}. Ignoring {iso_dataset_name}"
+                        f"{iso_formula}. Ignoring {iso_dataset_name}",
+                        AllParseWarning
                     )
                     molecules_with_duplicate_isotopologues.append(mol_formula)
 
@@ -180,11 +189,13 @@ class AllParser:
         if self.num_isotopologues != len(all_isotopologues):
             warnings.warn(
                 f"Number of isotopologues stated ({self.num_isotopologues}) does not "
-                f"match the actual number ({len(all_isotopologues)})!"
+                f"match the actual number ({len(all_isotopologues)})!",
+                AllParseWarning
             )
 
         if self.num_datasets != len(set(all_datasets)):
             warnings.warn(
                 f"Number of datasets stated ({self.num_datasets}) does not match the "
-                f"actual number ({len(set(all_datasets))})!"
+                f"actual number ({len(set(all_datasets))})!",
+                AllParseWarning
             )
