@@ -7,8 +7,8 @@ from pathlib import Path
 from pyvalem.formula import Formula, FormulaParseError
 
 from .exceptions import LineValueError, LineCommentError, DefParseError
-from .utils import get_file_raw_text_over_api, parse_exomol_line
 from .utils import DataClass
+from .utils import get_file_raw_text_over_api, parse_exomol_line
 
 
 # noinspection PyUnresolvedReferences
@@ -296,6 +296,8 @@ class DefParser:
         # error:
         try:
             self.id = parse_line("ID")
+            if self.id != "EXOMOL.def":
+                raise DefParseError(f"Unexpected ID in {self.file_name}")
             self.iso_formula = parse_line("IsoFormula")
             self.iso_slug = parse_line("Iso-slug")
             self.dataset_name = parse_line("Isotopologue dataset name")

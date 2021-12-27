@@ -1,14 +1,13 @@
 """
 TODO: add the module documentation
 """
-# TODO: write all docstrings
 
 import warnings
 from pathlib import Path
 
 from pyvalem.formula import Formula, FormulaParseError
 
-from .exceptions import AllParseError, AllParseWarning
+from .exceptions import AllParseError, AllParseWarning, LineValueError, LineCommentError
 from .utils import DataClass
 from .utils import get_file_raw_text_over_api, parse_exomol_line
 
@@ -217,78 +216,88 @@ class AllParser:
                 warn_on_comments=warn_on_comments,
             )
 
-        self.id = parse_line("ID")
-        self.version = parse_line("Version number with format YYYYMMDD", int)
-        self.num_molecules = parse_line("Number of molecules in the database", int)
-        self.num_isotopologues = parse_line(
-            "Number of isotopologues in the database", int
-        )
-        self.num_datasets = parse_line("Number of datasets in the database", int)
-        self.molecules = {}
+        # catch all the parse_line-originated errors and wrap them in the AllParseError:
+        try:
+            self.id = parse_line("ID")
+            if self.id != "EXOMOL.master":
+                raise AllParseError(f"Unexpected ID in {self.file_name}")
+            self.version = parse_line("Version number with format YYYYMMDD", int)
+            self.num_molecules = parse_line("Number of molecules in the database", int)
+            self.num_isotopologues = parse_line(
+                "Number of isotopologues in the database", int
+            )
+            self.num_datasets = parse_line("Number of datasets in the database", int)
+            self.molecules = {}
 
-        # Verify the numbers of isotopologues and datasets by keeping track:
-        all_isotopologues = []
-        all_datasets = []
-        # Also keep track of all the molecules with more than one dataset in a single
-        # isotopologue:
-        molecules_with_duplicate_isotopologues = []
+            # Verify the numbers of isotopologues and datasets by keeping track:
+            all_isotopologues = []
+            all_datasets = []
+            # Also keep track of all the molecules with more than one dataset in a
+            # single isotopologue:
+            molecules_with_duplicate_isotopologues = []
 
-        # loop over molecules:
-        for _ in range(self.num_molecules):
-            mol_names = []
+            # loop over molecules:
+            for _ in range(self.num_molecules):
+                mol_names = []
 
-            num_names = parse_line("Number of molecule names listed", int)
+                num_names = parse_line("Number of molecule names listed", int)
 
-            # loop over the molecule names:
-            for __ in range(num_names):
-                mol_names.append(parse_line("Name of the molecule"))
+                # loop over the molecule names:
+                for __ in range(num_names):
+                    mol_names.append(parse_line("Name of the molecule"))
 
-            mol_formula = parse_line("Molecule chemical formula")
-            try:
-                Formula(mol_formula)
-            except FormulaParseError as e:
-                raise AllParseError(f"{str(e)} (raised in {self.file_name})")
-
-            num_isotopologues = parse_line("Number of isotopologues considered", int)
-            mol_isotopologues = {}
-
-            # loop over the isotopologues:
-            for __ in range(num_isotopologues):
-                iso_inchi_key = parse_line("Inchi key of isotopologue")
-                iso_slug = parse_line("Iso-slug")
-                iso_formula = parse_line("IsoFormula")
+                mol_formula = parse_line("Molecule chemical formula")
                 try:
-                    Formula(iso_formula)
+                    Formula(mol_formula)
                 except FormulaParseError as e:
                     raise AllParseError(f"{str(e)} (raised in {self.file_name})")
-                iso_dataset_name = parse_line("Isotopologue dataset name")
-                iso_version = parse_line("Version number with format YYYYMMDD", int)
 
-                isotopologue = Isotopologue(
-                    inchi_key=iso_inchi_key,
-                    iso_slug=iso_slug,
-                    iso_formula=iso_formula,
-                    dataset_name=iso_dataset_name,
-                    version=iso_version,
+                num_isotopologues = parse_line(
+                    "Number of isotopologues considered", int
                 )
+                mol_isotopologues = {}
 
-                if iso_formula not in mol_isotopologues:
-                    mol_isotopologues[iso_formula] = isotopologue
-                else:
-                    warnings.warn(
-                        f"{mol_formula} lists more than one dataset for isotopologue "
-                        f"{iso_formula}. Ignoring {iso_dataset_name}",
-                        AllParseWarning,
+                # loop over the isotopologues:
+                for __ in range(num_isotopologues):
+                    iso_inchi_key = parse_line("Inchi key of isotopologue")
+                    iso_slug = parse_line("Iso-slug")
+                    iso_formula = parse_line("IsoFormula")
+                    try:
+                        Formula(iso_formula)
+                    except FormulaParseError as e:
+                        raise AllParseError(f"{str(e)} (raised in {self.file_name})")
+                    iso_dataset_name = parse_line("Isotopologue dataset name")
+                    iso_version = parse_line("Version number with format YYYYMMDD", int)
+
+                    isotopologue = Isotopologue(
+                        inchi_key=iso_inchi_key,
+                        iso_slug=iso_slug,
+                        iso_formula=iso_formula,
+                        dataset_name=iso_dataset_name,
+                        version=iso_version,
                     )
-                    molecules_with_duplicate_isotopologues.append(mol_formula)
 
-                all_datasets.append(iso_dataset_name)
-                all_isotopologues.append(isotopologue)
+                    if iso_formula not in mol_isotopologues:
+                        mol_isotopologues[iso_formula] = isotopologue
+                    else:
+                        warnings.warn(
+                            f"{mol_formula} lists more than one dataset for "
+                            f"isotopologue {iso_formula}. Ignoring {iso_dataset_name}",
+                            AllParseWarning,
+                        )
+                        molecules_with_duplicate_isotopologues.append(mol_formula)
 
-            # molecule slug is not present in the exomol.all data!
-            self.molecules[mol_formula] = Molecule(
-                names=mol_names, formula=mol_formula, isotopologues=mol_isotopologues
-            )
+                    all_datasets.append(iso_dataset_name)
+                    all_isotopologues.append(isotopologue)
+
+                # molecule slug is not present in the exomol.all data!
+                self.molecules[mol_formula] = Molecule(
+                    names=mol_names,
+                    formula=mol_formula,
+                    isotopologues=mol_isotopologues,
+                )
+        except (LineValueError, LineCommentError) as e:
+            raise AllParseError(str(e))
 
         if self.num_isotopologues != len(all_isotopologues):
             warnings.warn(

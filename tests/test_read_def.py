@@ -17,8 +17,7 @@ with open(example_def_path, "r") as fp:
 
 def test_instantiation_path():
     def_parser = DefParser(example_def_path)
-    with open(example_def_path, "r") as fp:
-        assert def_parser.raw_text == fp.read()
+    assert def_parser.raw_text == example_def_raw_text
     assert def_parser.file_name == example_def_path.name
 
 
@@ -149,3 +148,16 @@ def test_warn_on_comments(monkeypatch):
     with pytest.warns(None) as record:
         def_parser.parse(warn_on_comments=False)
     assert not record
+
+
+def test_unexpected_file_id(monkeypatch):
+    monkeypatch.setattr(
+        exomole.read_def,
+        "get_file_raw_text_over_api",
+        lambda *args, **kwargs: example_def_raw_text.replace(
+            "EXOMOL.def", "EXOMOL.spam"
+        ),
+    )
+    def_parser = DefParser()
+    with pytest.raises(DefParseError, match=".*Unexpected ID*"):
+        def_parser.parse(warn_on_comments=False)
