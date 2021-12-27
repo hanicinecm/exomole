@@ -1,6 +1,5 @@
 """
-Module containing all the custom Exceptions and Warnings used in the
-`exomole` package.
+Module containing all the custom Exceptions and Warnings used in the `exomole` package.
 """
 
 

@@ -143,9 +143,7 @@ def test_warn_on_number_isotopologues(monkeypatch):
     monkeypatch.setattr(
         exomole.read_all,
         "get_file_raw_text_over_api",
-        lambda *args, **kwargs: example_all_raw_text.replace(
-            " 193", " 194"
-        ),
+        lambda *args, **kwargs: example_all_raw_text.replace(" 193", " 194"),
     )
     all_parser = AllParser()
     with pytest.warns(AllParseWarning, match=".*Number of isotopologues*"):
@@ -158,9 +156,7 @@ def test_warn_on_number_datasets(monkeypatch):
     monkeypatch.setattr(
         exomole.read_all,
         "get_file_raw_text_over_api",
-        lambda *args, **kwargs: example_all_raw_text.replace(
-            "  68", " 69"
-        ),
+        lambda *args, **kwargs: example_all_raw_text.replace("  68", " 69"),
     )
     all_parser = AllParser()
     with pytest.warns(AllParseWarning, match=".*Number of datasets*"):
