@@ -1,5 +1,7 @@
-"""
-TODO: add the module documentation
+"""Module containing functionality for reading ExoMole data files.
+
+Two stand-alone functions are provided for reading *bz2*-compressed ExoMol files
+with states (*.states.bz2* files) and with transitions (*.trans.bz2*).
 """
 
 from pathlib import Path
@@ -10,49 +12,60 @@ from .utils import load_dataframe_chunks, get_num_columns
 
 def states_chunks(states_path, chunk_size, columns):
     """
-    Get a generator of chunks of the dataset .states file.
+    Get a generator of chunks of the dataset *.states.bz2* file.
 
-    Generator of pandas.DataFrame chunks of the .states file, with
-    rows indexed by the values of the first column in the .states file.
+    Generator of `pandas.DataFrame` chunks of the *.states* file, with
+    rows indexed by the values of the first column in the *.states* file.
 
     The columns argument passed needs to contain names for *all* the columns
-    *except the first* .states column, which is assumed to be the states index.
+    *except the first* column, which is assumed to be the `states` index.
 
-    The generated pandas.DataFrames are cast explicitly to dtype=str,
-    to avoid possible nasty surprises caused by pandas guessing the types itself.
+    The generated `pandas.DataFrames` are cast explicitly to ``dtype=str``,
+    to avoid possible nasty surprises caused by `pandas` guessing the types itself.
     The columns can be re-casted downstream to the more appropriate data types
     for faster processing. An example for the energy column might be as follows:
-    state_chunk['E'] = state_chunk['col'].astype('float64')
+    ``state_chunk['E'] = state_chunk['col'].astype('float64')``
 
     Parameters
     ----------
     states_path : str or Path
-        Path to the .states file on the local file system.
+        Path to the *.states* file on the local file system.
     chunk_size : int
-        Chunk size, should be chosen appropriately with regards to RAM size.
+        Chunk size, should be chosen appropriately with regards to the RAM size.
         Roughly 1_000_000 per 1GB consumed.
     columns : iterable of str
-        Column names for all the columns in the states file except the first one,
-        which is assumed to be the states index.
-        Therefore, len(columns) must be one less than the number of actual columns
-        in the .states file.
+        Column names for all the columns in the *.states* file except the first one,
+        which is assumed to be the `states` index.
+        Therefore, ``len(columns)`` must be one less than the number of actual columns
+        in the *.states* file.
 
     Yields
     ------
     states_chunk : pandas.DataFrame
-        Generated chunks of the states file, each is a pandas.DataFrame with columns
-        according to the `columns` passed, and indexed by the values in the first
-        column in the .states file.
-        The whole dataframe is of string (object) data type.
+        Generated chunks of the *.states* file, each is a `pandas.DataFrame` with
+        columns according to the `columns` passed, and indexed by the values in the
+        first column in the *.states* file.
+        The whole `DataFrame` is of string (`object`) data type.
 
     Raises
     ------
     StatesParseError
-        If len(columns) inconsistent with the number of columns in the .states file.
+        If ``len(columns)`` inconsistent with the number of columns in the *.states*
+        file.
 
     Examples
     --------
-    >>> # TODO: Add an example.
+    >>> sp = "tests/resources/dummy_states_10x5_int_float_int_str_int.states.bz2"
+    >>> states_columns = ["col1", "col2", "col3", "col4"]
+    >>> for df in states_chunks(states_path=sp, chunk_size=5, columns=states_columns):
+    ...     print(df)  # synthetic, unphysical data as an example
+    ...     break
+                      col1 col2 col3 col4
+    1   0.4745999608668017   88    a    4
+    2  0.47729879282298115   90    b    7
+    3  0.32392489118966217   57    c    6
+    4   0.4704792592345922   95    d    1
+    5   0.8168636898850669    6    e    9
     """
     try:
         chunks = load_dataframe_chunks(
@@ -71,20 +84,21 @@ def states_chunks(states_path, chunk_size, columns):
 
 def trans_chunks(trans_paths, chunk_size):
     """
-    Get a generator of chunks of the dataset .trans file.
+    Get a generator of chunks of the dataset *.trans.bz* files.
 
-    Generator of pd.DataFrame chunks of all the .trans files passed as the trans_paths
-    argument.
-    The columns are auto-named as "i", "f", "A_if" [, "v_if"]
-    The "i" and "f" columns will correspond to the index of the DataFrames yielded by
-    the read_states.states_chunks generator.
-    No explicit data type casting is performed and pandas is trusted to correctly
-    identify the "i" and "f" columns as "int64" and rest as "float64".
+    Generator of `pandas.DataFrame` chunks of all the *.trans* files passed as the
+    `trans_paths` argument value.
+    The columns are auto-named as ``"i", "f", "A_if" [, "v_if"]``.
+    The ``"i"`` and ``"f"`` columns will correspond to the index of the `DataFrames`
+    yielded by the `states_chunks` generator.
+    No explicit data type casting is performed and `pandas` is trusted to correctly
+    identify the ``"i"`` and ``"f"`` columns as ``"int64"`` and rest as ``"float64"``
+    data types.
 
     Parameters
     ----------
     trans_paths : list of (str or Path)
-        Paths to the .trans files on the local file system. They all need to belong to
+        Paths to the *.trans* files on the local file system. They all need to belong to
         the same dataset, but no checks are made to assert that!
     chunk_size : int
         Chunk size, should be chosen appropriately with regards to RAM size, roughly
@@ -93,17 +107,30 @@ def trans_chunks(trans_paths, chunk_size):
     Yields
     ------
     trans_chunk : pd.DataFrame
-        Generated chunks of all the .trans files, each is a pd.DataFrame with
+        Generated chunks of all the *.trans* files, each is a `pandas.DataFrame` with
         auto-named columns.
 
     Raises
     ------
     TransParseError
-        If the first .trans file has number of columns other than {3, 4}.
+        If the first *.trans* file has number of columns other than ``{3, 4}``.
 
     Examples
     --------
-    >>> # TODO: Add an example.
+    >>> tr_paths = sorted(Path("tests/resources").glob("*.trans*0*.bz2"))
+    >>> for tr_path in tr_paths:
+    ...     print(tr_path)
+    tests/resources/dummy_trans_5x4_int_int_float_float.trans01.bz2
+    tests/resources/dummy_trans_5x4_int_int_float_float.trans02.bz2
+    tests/resources/dummy_trans_5x4_int_int_float_float.trans03.bz2
+
+    >>> for df in trans_chunks(trans_paths=tr_paths, chunk_size=3):
+    ...     print(df)  # synthetic, unphysical data as an example
+    ...     break
+       i  f      A_if      v_if
+    0  7  5  0.275477  0.121660
+    1  6  8  0.446633  0.290420
+    2  2  8  0.723996  0.426885
     """
     trans_paths = sorted(trans_paths)
 

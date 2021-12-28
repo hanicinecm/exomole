@@ -374,8 +374,8 @@ class DefParser:
             self.high_energy_complete = parse_line(
                 "Higher energy with complete set of transitions (in cm-1)", float
             )
-            # TODO: This is where I stop right now, although it would be nice to finish
-            #       the whole file one day.
+            # This is where I finish now, it would be nice to sort out the rest of the
+            # file one day!
         except (LineValueError, LineCommentError) as e:
             raise DefParseError(str(e))
 
