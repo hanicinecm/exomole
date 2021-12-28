@@ -8,9 +8,9 @@ tested there more properly.
 
 import pytest
 
-from . import resources_path
 from exomole.exceptions import StatesParseError
-from exomole.read_states import states_chunks
+from exomole.read_data import states_chunks
+from . import resources_path
 
 dummy_states_path = resources_path.joinpath(
     "dummy_states_10x5_int_float_int_str_int.states.bz2"

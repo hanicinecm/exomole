@@ -10,7 +10,7 @@ import pytest
 
 import exomole
 from exomole.exceptions import TransParseError
-from exomole.read_trans import trans_chunks
+from exomole.read_data import trans_chunks
 from . import resources_path
 
 dummy_trans_paths = list(
@@ -21,7 +21,7 @@ assert len(dummy_trans_paths) == 3
 
 @pytest.mark.parametrize("num_trans_cols", (1, 2, 5, 6, 7))
 def test_too_many_columns(num_trans_cols, monkeypatch):
-    monkeypatch.setattr(exomole.read_trans, "get_num_columns", lambda x: num_trans_cols)
+    monkeypatch.setattr(exomole.read_data, "get_num_columns", lambda x: num_trans_cols)
     with pytest.raises(TransParseError):
         list(trans_chunks(dummy_trans_paths, 5))
 
