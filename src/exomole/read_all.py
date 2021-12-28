@@ -1,5 +1,5 @@
-"""
-TODO: add the module documentation
+"""Module grouping some data-classes and a parser for reading and parsing the
+ExoMol master file *exomol.all*.
 """
 
 import warnings
@@ -14,8 +14,7 @@ from .utils import get_file_raw_text_over_api, parse_exomol_line
 
 # noinspection PyUnresolvedReferences
 class Molecule(DataClass):
-    """
-    A data class representing the Molecule instance.
+    """A data class representing the molecule instance.
 
     All the parameters passed are stored as instance attributes.
 
@@ -23,7 +22,7 @@ class Molecule(DataClass):
     ----------
     names : list of str
     formula : str
-    isotopologues : dict of `Isotopologue`
+    isotopologues : dict of Isotopologue
         The `Isotopologue` instances are stored under the keys of
         `Isotopologue.formula`.
     """
@@ -37,8 +36,7 @@ class Molecule(DataClass):
 
 # noinspection PyUnresolvedReferences
 class Isotopologue(DataClass):
-    """
-    A data class representing the Molecule instance.
+    """A data class representing a molecule instance.
 
     All the parameters passed are stored as instance attributes.
 
@@ -65,20 +63,19 @@ class Isotopologue(DataClass):
 
 
 class AllParser:
-    """
-    Classs which handles parsing the *exomol.all* file.
+    """Class which handles parsing the *exomol.all* file.
 
-    Parses the .all file specified by the `path` argument passed and leading to
-    the .all file on the local file system. If the `path` is not given, the .all file
-    is requested via the ExoMol public API.
+    Parses the *.all* file specified by the `path` argument passed and leading to
+    the *.all* file on the local file system. If the `path` is not given, the *.all*
+    file is requested via the ExoMol public API.
     Instantiating the class only saves the `raw_text` attribute, which gets parsed
     with the `parse` method into all the available data structured.
-    All the *relevant* attributes are listed in the *Attributes* section.
+    All the *relevant* attributes are listed in the **Attributes** section.
 
     Parameters
     ----------
     path : str or Path, optional
-        Path the the *exomol.all* file. If not passed, the file is requested over
+        Path to the *exomol.all* file. If not passed, the file is requested over
         the ExoMol public API.
 
     Attributes
@@ -92,7 +89,7 @@ class AllParser:
     Raises
     ------
     APIError
-        if `path` not passed and the ExoMol API request call results in an unsuccessful
+        If `path` not passed and the ExoMol API request call results in an unsuccessful
         response.
 
     Notes
@@ -149,16 +146,15 @@ class AllParser:
         self.molecules = None
 
     def _save_raw_text(self, path):
-        """
-        Save the raw text of a .all file as an instance attribute
+        """Save the raw text of a *.all* file as an instance attribute.
 
-        The .all file is either read from the local file system, or requested over the
+        The *.all* file is either read from the local file system, or requested over the
         ExoMol public API, if `path` argument not passed.
 
         Parameters
         ----------
         path : str or Path, optional
-            Path leading to the .def file. If not supplied, the file is requested over
+            Path leading to the *.all* file. If not supplied, the file is requested over
             the ExoMol public API.
         """
         if path is None:
@@ -170,38 +166,37 @@ class AllParser:
             self.file_name = Path(path).name
 
     def parse(self, warn_on_comments):
-        """
-        Parse the .all file text from the `raw_text` attribute.
+        """Parse the *.all* file text from the `raw_text` attribute.
 
         Populates all the instance attributes incrementally, util it hits the end of
-        the file, or one of the exceptions is raised, signaling inconsistent .all
+        the file, or one of the exceptions is raised, signaling inconsistent *.all*
         file.
 
         Parameters
         ----------
         warn_on_comments : bool
-            If `True`, the comments behind the `#` symbol on each line are checked
+            If ``True``, the comments behind the ``#`` symbol on each line are checked
             against some expected comments (hard-coded in the method) and the
-            LineWarning is raised if they do not match.
+            `LineWarning` is raised if they do not match.
 
         Raises
         -------
         AllParseError
-            Raised if value on any line cannot be cast to the expected type, or if
-            the parser runs out of lines. This error signals an inconsistent .all
+            Raised if value on any line cannot be cast to the expected `type`, or if
+            the parser runs out of lines. This error signals an inconsistent *.all*
             file. Also raised when any other inconsistencies are detected, such as
-            formulas not supported by PyValem package, etc.
+            formulas not supported by the `PyValem` package, etc.
 
         Warns
         -----
         AllParseWarning
-            This warning is raised if the total numbers of isotopologues and datasets
+            This warning is raised if `num_isotopologues` or `num_datasets`
             do not agree with the the actual numbers of isotopologues and datasets
-            respectively, extracted from the file lines. Also raised if the .all
+            respectively, extracted from the file lines. Also raised if the *.all*
             file lists more than a single dataset for any given isotopologue.
         LineWarning
-            Raised if `warns_on_comments` is True and if the comment on any line does
-            not match the expected text hard-coded in this method.
+            Raised if `warns_on_comments` is ``True`` and if the comment on any line
+            does not match the expected text hard-coded in this method.
         """
         lines = self.raw_text.split("\n")
         n_orig = len(lines)
