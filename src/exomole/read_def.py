@@ -1,5 +1,5 @@
-"""
-TODO: add the module documentation
+"""Module grouping some data-classes and the parser for reading and parsing the
+ExoMol *.def* files.
 """
 
 from pathlib import Path
@@ -13,8 +13,7 @@ from .utils import get_file_raw_text_over_api, parse_exomol_line
 
 # noinspection PyUnresolvedReferences
 class Isotope(DataClass):
-    """
-    A data class representing Isotope instances.
+    """A data class representing isotope instances.
 
     All the parameters passed are stored as instance attributes.
 
@@ -32,15 +31,14 @@ class Isotope(DataClass):
 
 
 class IrreducibleRepresentation(DataClass):
-    """
-    A data class representing instances of irreducible representations.
+    """A data class representing instances of irreducible representations.
 
     All the parameters passed are stored as instance attributes.
 
     Parameters
     ----------
     ir_id : str
-        ID of the irreducible representation
+        ID of the *irreducible representation*
     label : str
     nuclear_spin_degeneracy : int
     """
@@ -52,8 +50,7 @@ class IrreducibleRepresentation(DataClass):
 
 
 class QuantumCase(DataClass):
-    """
-    A data class representing the quantum case instances.
+    """A data class representing the quantum case instances.
 
     All the parameters passed are stored as instance attributes.
 
@@ -68,8 +65,7 @@ class QuantumCase(DataClass):
 
 # noinspection PyUnresolvedReferences
 class Quantum(DataClass):
-    """
-    A data class representing the quanta instances.
+    """A data class representing the quanta instances.
 
     All the parameters passed are stored as instance attributes.
 
@@ -77,7 +73,7 @@ class Quantum(DataClass):
     ----------
     label : str
     q_format : str
-        The quantum format as specified by the .def file
+        The quantum format as specified by the *.def* file
     description : str
     """
 
@@ -89,21 +85,20 @@ class Quantum(DataClass):
 
 
 class DefParser:
-    """
-    Class handling parsing of any particular .def file.
+    """Class handling parsing of any particular *.def* file.
 
-    Parses the .def file specified either by the `path` argument passed and leading to
-    the .def file on the local file system, or by the trio of `molecule_slug`,
-    `isotopologue_slug` and `dataset_name` arguments, in which case the .def file
+    Parses the *.def* file specified either by the `path` argument passed and leading to
+    the *.def* file on the local file system, or by the trio of `molecule_slug`,
+    `isotopologue_slug` and `dataset_name` arguments, in which case the *.def* file
     is requested via the ExoMol public API.
-    Instantiating the class only saves the `raw_text` attribute, which gets parsed
+    Instantiating the class only saves the `raw_text` attribute, which can be parsed
     with the `parse` method into all the available info. All the *relevant* attributes
-    are listed in the *Attributes* section.
+    are listed in the **Attributes** section.
 
     Parameters
     ----------
     path : str or Path, optional
-        The path leading to the .def file. If supplied, all the other arguments are
+        The path leading to the *.def* file. If supplied, all the other arguments are
         simply ignored.
     molecule_slug : str, optional
         Only required, if the `path` argument is not passed.
@@ -122,17 +117,17 @@ class DefParser:
     isotopes : list of Isotope
     lifetime_availability : bool
     lande_factor_availability : bool
-    quanta : list of Quanta
+    quanta : list of Quantum
 
     Raises
     ------
     APIError
-        if `path` not passed and the ExoMol API request call results in an unsuccessful
+        If `path` not passed and the ExoMol API request call results in an unsuccessful
         response.
 
     Notes
     -----
-    See the ExoMol file standard as defined in the ExoMol release paper [1]_.
+    See the ExoMol file standard as defined in the **ExoMol release paper** [1]_.
 
     References
     ----------
@@ -214,16 +209,15 @@ class DefParser:
         self.high_energy_complete = None
 
     def _save_raw_text(self, path, molecule_slug, isotopologue_slug, dataset_name):
-        """
-        Save the raw text of a .def file as an instance attribute
+        """Save the raw text of a *.def* file as an instance attribute
 
-        The .def file is either read from the local file system, or requested over the
+        The *.def* file is either read from the local file system, or requested over the
         ExoMol public API, based on the attributes values.
 
         Parameters
         ----------
         path : str or Path, optional
-            Path leading to the .def file. If supplied, all the other arguments are
+            Path leading to the *.def* file. If supplied, all the other arguments are
             ignored.
         molecule_slug : str, optional
             Ignored if `path` is passed.
@@ -243,39 +237,38 @@ class DefParser:
             self.file_name = Path(path).name
 
     def parse(self, warn_on_comments):
-        """
-        Parse the .def file text from the `raw_text` attribute.
+        """Parse the *.def* file text from the `raw_text` attribute.
 
         Populates all the instance attributes incrementally, util it hits the end of
-        the file, or one of the exceptions is raised, signaling inconsistent .def
+        the file, or one of the exceptions is raised, signaling inconsistent *.def*
         file.
 
         Parameters
         ----------
         warn_on_comments : bool
-            If `True`, the comments behind the `#` symbol on each line are checked
+            If ``True``, the comments behind the ``#`` symbol on each line are checked
             against some expected comments (hard-coded in the method) and the
-            LineWarning is raised if they do not match.
+            `LineWarning` is raised if they do not match.
 
         Raises
         -------
         DefParseError
-            Raised if value on any line cannot be cast to the expected type, or if
-            the parser runs out of lines. This error signals an inconsistent .def
+            Raised if value on any line cannot be cast to the expected ``type``, or if
+            the parser runs out of lines. This error signals an inconsistent *.def*
             file. Also raised when any other inconsistencies are detected, such as
-            inconsistent number of atoms, formula not supported by PyValem package,
-            etc.
+            inconsistent number of atoms, formula not supported by the `PyValem`
+            package, etc.
 
         Warns
         -----
         LineWarning
-            Raised if `warns_on_comments` is True and if the comment on any line does
-            not match the expected text hard-coded in this method.
+            Raised if `warns_on_comments` is ``True`` and if the comment on any line
+            does not match the expected text hard-coded in this method.
 
         Warnings
         --------
         Currently the parser stops after the *High Energy Complete* line and does not
-        parse the rest of the .def file, as the info beyond this point in the .def
+        parse the rest of the *.def* file, as the info beyond this point in the *.def*
         file was not needed for the data product application which served as my
         motivation to write this package.
         """
