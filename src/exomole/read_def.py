@@ -380,9 +380,9 @@ class DefParser:
             raise DefParseError(str(e))
 
     def get_quanta_labels(self):
-        """
-        Quanta labels for all the quanta extracted from the parsed .def file.
-        The `parse` method must have been called first and finished.
+        """Quanta labels for all the quanta extracted from the parsed *.def* file.
+
+        The `parse` method must have been called first and finished without errors.
 
         Returns
         -------
@@ -391,13 +391,12 @@ class DefParser:
         return [q.label for q in self.quanta]
 
     def number_states_columns_expected(self):
-        """
-        Number of columns all together expected in the associated .states file
+        """Number of columns all together expected in the associated *.states* file
         belonging to the same data-set.
 
-        This number depends on the number of quanta parsed from the .def file, as well
+        This number depends on the number of quanta parsed from the *.def* file, as well
         as the `lifetime_availability` and the `lande_factor_availability` attributes
-        also extracted from the .def file text.
+        also extracted from the *.def* file text.
 
         Returns
         -------
