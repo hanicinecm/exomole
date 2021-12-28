@@ -1,5 +1,8 @@
-"""
-TODO: add the module documentation
+"""Module grouping some useful data-structures and functionality used by other modules
+in the `exomole` package.
+
+This module only groups *helper* functions and classes, which are not designed to be
+used by the end-users of the `exomole` package.
 """
 
 import warnings
@@ -20,18 +23,17 @@ from .exceptions import (
 def get_file_raw_text_over_api(
     which, molecule_slug=None, isotopologue_slug=None, dataset_name=None
 ):
-    """
-    Get the raw text of an ExoMol file over the ExoMol api.
+    """Get the raw text of any ExoMol file over the ExoMol api.
 
-    Exomol .def or .all file are supported, controlled by the `which` argument.
-    For `which='all'`, all the other optional arguments are ignored.
-    The file is requested over https under the relevant URL via the ExoMol public API.
+    Exomol *.def* or *.all* file are supported, controlled by the `which` argument.
+    For ``which='all'``, all the other optional arguments are ignored.
+    The file is requested over *https* under the relevant URL via the ExoMol public API.
 
     Parameters
     ----------
     which : {'all', 'def'}
     molecule_slug, isotopologue_slug, dataset_name : str, optional
-        Ignored if `which == 'all'`.
+        Ignored if ``which == 'all'``.
 
     Returns
     -------
@@ -69,17 +71,18 @@ def parse_exomol_line(
     val_type=None,
     warn_on_comments=False,
 ):
-    """
-    A helper line parser for the ExoMol files (.all and .def).
+    """A helper line parser for the ExoMol files (*.all* and *.def*).
 
-    List of the file lines is passed as well as the original length of the list.
+    List of the file lines is passed as well as the original length of the list
+    `n_orig`.
     The top line of `lines` is popped (`lines` gets changed as an externality) and the
-    line value is extracted, cast to the final data type and returned.
+    line value is extracted, cast to the final data type (`val_type`) and returned.
     The list of `lines` is therefore being consumed line by line with each call of this
     function.
-    If the `expected_comment` is passed, the comment in the top line (after # symbol)
-    is checked against the `expected_comment`, and if they do not match and
-    `warn_on_comment` is set to True, the `LineWarning` is raised.
+    If the `expected_comment` is passed, the comment in the top line
+    (after the ``#`` symbol) is checked against the `expected_comment`,
+    and if they do not match and `warn_on_comment` is set to ``True``, the
+    `LineWarning` is raised.
     If the `val_type` is passed, the value is cast to the passed type.
 
     Parameters
@@ -90,14 +93,14 @@ def parse_exomol_line(
     n_orig : int
         The number of lines of the full file (for error raising only).
     expected_comment : str, optional
-        The comment after the # symbol on each line is expected to match the
+        The comment after the ``#`` symbol on each line is expected to match the
         passed `expected_comment`.
     file_name : str, optional
         The name of the file that `lines` belonged to (for error raising only).
     val_type : type, optional
-        The intended type of the parsed value, the value will be cast to.
+        The intended `type` of the parsed value, the value will be cast to.
     warn_on_comments : bool, optional
-        If True, the LineWarning will be raised if the parsed comment
+        If ``True``, the `LineWarning` will be raised if the parsed comment
         does not match the `expected_comment`.
 
     Returns
@@ -109,14 +112,14 @@ def parse_exomol_line(
     Raises
     ------
     LineCommentError
-        If the top line does not have the required format of value # comment
+        If the top line does not have the required format of ``value # comment``
     LineValueError
-        If the value parsed from the top line cannot be cast to the val_type.
+        If the value parsed from the top line cannot be cast to the `val_type`.
 
     Warnings
     --------
     LineWarning
-        If `warn_on_comment` set to True and the comment parsed from the top line
+        If `warn_on_comment` set to ``True`` and the comment parsed from the top line
         does not match the `expected_comment` passed, the `LineWarning` is raised.
         Also raised if an empty line is detected anywhere (irrespective of the
         `warn_on_comment` value).
@@ -170,33 +173,33 @@ def load_dataframe_chunks(
     dtype=None,
     check_num_columns=True,
 ):
-    """
-    Generates chunks of a compressed ExoMol data file.
+    """Generates chunks of a compressed ExoMol data file.
 
-    Chunks of either .states.bz2 file or .trans.bz2 file are loaded from the local file
-    system with the specified chunk size.
-    Generator of pandas.DataFrames is returned.
+    Chunks of either *.states.bz2* file or *.trans.bz2* file are loaded from the
+    local file system with the specified chunk size.
+    Generator of `pandas.DataFrames` is returned.
     No decompression is necessary beforehand.
-    If `column_names` are passed, and `check_num_columns` is True, it verifies that
-    `len(column_names)` matches to the number of columns in the file,
+    If `column_names` are passed, and `check_num_columns` is ``True``, it verifies that
+    ``len(column_names)`` matches to the number of columns in the file,
     otherwise an exception is raised.
 
     Parameters
     ----------
     file_path : str or Path
-        Path to the .bz2 compressed file I want to load. Either .states or .trans file.
+        Path to the *.bz2* compressed file I want to load. Either *.states* or *.trans*
+        file.
     chunk_size : int
         Appropriate value depending on RAM available.
     first_col_is_index : bool, optional
-        If true, the first data column values are set as the chunk index.
+        If ``True``, the first data column values are set as the chunk index.
     column_names : list of str, optional
-        Column names of the file loaded. If `first_column_is_index` is True,
+        Column names of the file loaded. If ``first_column_is_index is True``,
         the `column_names` *do not contain* the index (first) column.
     dtype : type, optional
-        Data type to cast to pandas.read_csv. By default, data type determination is
-        left on pandas.
+        Data ``type`` to cast to `pandas.read_csv`. By default, data type determination
+        is left to `pandas`.
     check_num_columns : bool, optional
-        If True and `column_names` passed, check is performed to verify that the
+        If ``True`` and `column_names` passed, check is performed to verify that the
         `column_names` are consistent with the number of columns in the data file.
         This check will likely result in some slowdown as the file will be decompressed
         twice.
@@ -204,14 +207,14 @@ def load_dataframe_chunks(
     Returns
     -------
     df_chunks : pandas.io.parsers.TextFileReader
-        Generator of pandas.DataFrame chunks. Access by `for chunk in df_chunks: ...`,
-        where each chunk is a pandas.DataFrame.
+        Generator of `pandas.DataFrame` chunks. Access by
+        ``for chunk in df_chunks: ...``, where each chunk is a `pandas.DataFrame`.
 
     Raises
     ------
     DataParseError
-        When `check_num_columns` is True and `column_names` are inconsistent with number
-        of columns in the read data file.
+        When ``check_num_columns is True`` and `column_names` are inconsistent with the
+        number of columns in the data file being read.
     """
     if check_num_columns and column_names:
         file_name = Path(file_path).name
@@ -245,9 +248,8 @@ def load_dataframe_chunks(
 
 
 def get_num_columns(file_path):
-    """
-    Gets the number of columns in the .bz2 compressed either .states or .trans file
-    under the file_path.
+    """Gets the number of columns in the *.bz2* compressed either *.states*, or
+    *.trans* file under the `file_path`.
 
     Parameters
     ----------
@@ -263,6 +265,9 @@ def get_num_columns(file_path):
 
 
 class DataClass:
+    """Base class for all the data-classes used to store data from the parsed *.all*
+    and *.def* files."""
+
     def __init__(self, **kwargs):
         for attr, val in kwargs.items():
             setattr(self, attr, val)
