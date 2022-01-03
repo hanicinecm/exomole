@@ -97,7 +97,7 @@ def trans_chunks(trans_paths, chunk_size):
 
     Parameters
     ----------
-    trans_paths : list of (str or Path)
+    trans_paths : iterable of (str or Path)
         Paths to the *.trans* files on the local file system. They all need to belong to
         the same dataset, but no checks are made to assert that!
     chunk_size : int

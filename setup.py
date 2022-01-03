@@ -35,7 +35,7 @@ setup(
     python_requires=">=3.6",
     install_requires=["pandas", "requests", "pyvalem>=2.3"],
     extras_require={
-        "dev": ["check-manifest", "pytest-cov", "tox", "black", "ipython"],
+        "dev": ["pytest-cov", "tox", "black", "ipython"],
     },
     project_urls={
         "Bug Reports": "https://github.com/hanicinecm/exomole/issues",
