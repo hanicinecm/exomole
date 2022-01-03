@@ -8,15 +8,15 @@ long_description = (root / "README.rst").read_text(encoding="utf-8")
 
 setup(
     name="exomole",
-    version="0.1.0",
-    description="A package for parsing and sanitization of Exomol Database data files",
+    version="1.0.0",
+    description="A package for parsing and validation of Exomol Database data files",
     long_description=long_description,
     long_description_content_type="text/x-rst",
     url="https://github.com/hanicinecm/exomole/",
     author="Martin Hanicinec",
     author_email="hanicinecm@gmail.com",
     classifiers=[
-        "Development Status :: 1 - Planning",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Science/Research",
         "Topic :: Scientific/Engineering :: Astronomy",
         "License :: OSI Approved :: MIT License",
