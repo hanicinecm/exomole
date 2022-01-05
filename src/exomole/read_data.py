@@ -22,6 +22,7 @@ def states_chunks(states_path, chunk_size, columns):
 
     The generated `pandas.DataFrames` are cast explicitly to ``dtype=str``,
     to avoid possible nasty surprises caused by `pandas` guessing the types itself.
+    The index, however, is cast to "int64" explicitly.
     The columns can be re-casted downstream to the more appropriate data types
     for faster processing. An example for the energy column might be as follows:
     ``state_chunk['E'] = state_chunk['col'].astype('float64')``
@@ -79,6 +80,7 @@ def states_chunks(states_path, chunk_size, columns):
     except DataParseError as e:
         raise StatesParseError(str(e))
     for chunk in chunks:
+        chunk.index = chunk.index.astype("int64")
         yield chunk
 
 

@@ -51,3 +51,10 @@ def test_dtype_cast(col):
     columns = "a b c d".split()
     for chunk in states_chunks(dummy_states_path, 2, columns):
         assert chunk[col].dtype == dtype
+
+
+def test_index_dtype():
+    dtype = "int64"
+    columns = "a b c d".split()
+    for chunk in states_chunks(dummy_states_path, 2, columns):
+        assert chunk.index.dtype == dtype
