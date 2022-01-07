@@ -22,7 +22,7 @@ def test_number_of_chunks(chunk_size, num_chunks, monkeypatch):
             data_path,
             chunk_size=chunk_size,
             first_col_is_index=True,
-            column_names="a b c d".split(),
+            column_names="i a b c d".split(),
         )
     )
     assert len(chunks) == num_chunks
@@ -49,7 +49,7 @@ def test_too_many_columns(monkeypatch):
         DataParseError,
         match=re.escape(
             "dummy_data_5x5_int.bz2 has 5 columns, "
-            "but columns ['a', 'b', 'c', 'd'] passed."
+            "but column names ['a', 'b', 'c', 'd'] were passed."
         ),
     ):
         for _ in load_dataframe_chunks(data_path, 1, column_names="a b c d".split()):
@@ -59,11 +59,11 @@ def test_too_many_columns(monkeypatch):
         DataParseError,
         match=re.escape(
             "dummy_data_5x5_int.bz2 has 5 columns, "
-            "but index + columns ['a', 'b', 'c'] passed."
+            "but column names ['i', 'a', 'b', 'c'] were passed."
         ),
     ):
         for _ in load_dataframe_chunks(
-            data_path, 1, first_col_is_index=True, column_names="a b c".split()
+            data_path, 1, first_col_is_index=True, column_names="i a b c".split()
         ):
             pass
 
@@ -74,7 +74,7 @@ def test_not_enough_columns(monkeypatch):
         DataParseError,
         match=re.escape(
             f"dummy_data_5x5_int.bz2 has 5 columns, "
-            f"but columns ['a', 'b', 'c', 'd', 'e', 'f'] passed."
+            f"but column names ['a', 'b', 'c', 'd', 'e', 'f'] were passed."
         ),
     ):
         for _ in load_dataframe_chunks(
@@ -86,14 +86,14 @@ def test_not_enough_columns(monkeypatch):
         DataParseError,
         match=re.escape(
             f"dummy_data_5x5_int.bz2 has 5 columns, "
-            f"but index + columns ['a', 'b', 'c', 'd', 'e'] passed."
+            f"but column names ['i', 'a', 'b', 'c', 'd', 'e'] were passed."
         ),
     ):
         for _ in load_dataframe_chunks(
             data_path,
             1,
             first_col_is_index=True,
-            column_names="a b c d e".split(),
+            column_names="i a b c d e".split(),
             check_num_columns=True,
         ):
             pass
@@ -110,7 +110,7 @@ def test_column_names_no_index(monkeypatch):
 
 def test_column_names_with_index(monkeypatch):
     monkeypatch.setattr(exomole.utils, "get_num_columns", lambda x: 5)
-    column_names = "a b c d".split()
+    column_names = "i a b c d".split()
     for chunk in load_dataframe_chunks(
         data_path,
         1,
@@ -118,7 +118,7 @@ def test_column_names_with_index(monkeypatch):
         column_names=column_names,
         check_num_columns=True,
     ):
-        assert list(chunk.columns) == column_names
+        assert list(chunk.columns) == ["a", "b", "c", "d"]
 
 
 def test_load_data_no_index(monkeypatch):
@@ -144,7 +144,7 @@ def test_load_data_with_index(monkeypatch):
             data_path,
             1,
             first_col_is_index=True,
-            column_names="a b c d".split(),
+            column_names="i a b c d".split(),
             check_num_columns=True,
             dtype=float,
         )

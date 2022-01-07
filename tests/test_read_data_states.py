@@ -22,24 +22,26 @@ def test_inconsistent_columns():
     with pytest.raises(StatesParseError):
         # too many columns:
         list(
-            states_chunks(dummy_states_path, chunk_size=10, columns="a b c d e".split())
+            states_chunks(
+                dummy_states_path, chunk_size=10, columns="i a b c d e".split()
+            )
         )
     with pytest.raises(StatesParseError):
         # too little columns:
-        list(states_chunks(dummy_states_path, chunk_size=10, columns="a b c".split()))
+        list(states_chunks(dummy_states_path, chunk_size=10, columns="i a b c".split()))
 
 
 def test_consistent_columns():
-    columns = "a b c d".split()
+    columns = "i a b c d".split()
     for chunk in states_chunks(dummy_states_path, chunk_size=1, columns=columns):
-        assert list(chunk.columns) == columns
+        assert list(chunk.columns) == "a b c d".split()
 
 
 @pytest.mark.parametrize(
     "chunk_size, num_chunks", ((1, 10), (2, 5), (3, 4), (5, 2), (10, 1), (100, 1))
 )
 def test_chunk_size(chunk_size, num_chunks):
-    columns = "a b c d".split()
+    columns = "i a b c d".split()
     assert (
         len(list(states_chunks(dummy_states_path, chunk_size, columns))) == num_chunks
     )
@@ -48,13 +50,19 @@ def test_chunk_size(chunk_size, num_chunks):
 @pytest.mark.parametrize("col", "a b c d".split())
 def test_dtype_cast(col):
     dtype = "O"
-    columns = "a b c d".split()
+    columns = "i a b c d".split()
     for chunk in states_chunks(dummy_states_path, 2, columns):
         assert chunk[col].dtype == dtype
 
 
 def test_index_dtype():
     dtype = "int64"
-    columns = "a b c d".split()
+    columns = "i a b c d".split()
     for chunk in states_chunks(dummy_states_path, 2, columns):
         assert chunk.index.dtype == dtype
+
+
+def test_incompatible_columns():
+    with pytest.raises(StatesParseError):
+        for _ in states_chunks(dummy_states_path, 2, columns="foo a b c d".split()):
+            pass

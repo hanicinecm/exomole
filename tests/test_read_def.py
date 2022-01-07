@@ -76,7 +76,34 @@ def test_parse_example_def():
 
     # additional methods:
     assert def_parser.get_quanta_labels() == ["par", "v", "N", "e/f"]
-    assert def_parser.number_states_columns_expected() == 9
+    assert def_parser.get_states_header() == (
+        ["i", "E", "g_tot", "J", "tau", "par", "v", "N", "e/f"]
+    )
+
+
+@pytest.mark.parametrize(
+    "lifetime_availability, lande_factor_availability, header_part",
+    (
+        (True, True, ["tau", "g_J"]),
+        (True, False, ["tau"]),
+        (False, True, ["g_J"]),
+        (False, False, []),
+    ),
+)
+def test_states_header(
+    monkeypatch, lifetime_availability, lande_factor_availability, header_part
+):
+    def_parser = DefParser(example_def_path)
+    q_labels = ["foo", "poo"]
+    monkeypatch.setattr(def_parser, "get_quanta_labels", lambda: q_labels)
+    monkeypatch.setattr(def_parser, "lifetime_availability", lifetime_availability)
+    monkeypatch.setattr(
+        def_parser, "lande_factor_availability", lande_factor_availability
+    )
+    assert (
+        def_parser.get_states_header()
+        == ["i", "E", "g_tot", "J"] + header_part + q_labels
+    )
 
 
 def test_invalid_iso_formula(monkeypatch):

@@ -191,10 +191,12 @@ def load_dataframe_chunks(
     chunk_size : int
         Appropriate value depending on RAM available.
     first_col_is_index : bool, optional
-        If ``True``, the first data column values are set as the chunk index.
+        If ``True``, the first data column values are set as the chunk index (and the
+        first column name is therefore ignored - but still must be present in
+        `column_names`).
     column_names : list of str, optional
         Column names of the file loaded. If ``first_column_is_index is True``,
-        the `column_names` *do not contain* the index (first) column.
+        the `column_names` *still have to contain* the index (first) column.
     dtype : type, optional
         Data ``type`` to cast to `pandas.read_csv`. By default, data type determination
         is left to `pandas`.
@@ -219,18 +221,11 @@ def load_dataframe_chunks(
     if check_num_columns and column_names:
         file_name = Path(file_path).name
         num_cols = get_num_columns(file_path)
-        if first_col_is_index:
-            if num_cols != len(column_names) + 1:
-                raise DataParseError(
-                    f"{file_name} has {num_cols} columns, but index + columns "
-                    f"{column_names} passed."
-                )
-        else:
-            if num_cols != len(column_names):
-                raise DataParseError(
-                    f"{file_name} has {num_cols} columns, but columns {column_names} "
-                    f"passed."
-                )
+        if num_cols != len(column_names):
+            raise DataParseError(
+                f"{file_name} has {num_cols} columns, but column names "
+                f"{column_names} were passed."
+            )
 
     df_chunks = pandas.read_csv(
         file_path,
@@ -238,7 +233,9 @@ def load_dataframe_chunks(
         sep=r"\s+",
         header=None,
         index_col=None if not first_col_is_index else 0,
-        names=column_names,
+        names=column_names
+        if not (column_names and first_col_is_index)
+        else column_names[1:],
         chunksize=chunk_size,
         iterator=True,
         low_memory=False,

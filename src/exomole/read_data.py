@@ -17,8 +17,10 @@ def states_chunks(states_path, chunk_size, columns):
     Generator of `pandas.DataFrame` chunks of the *.states* file, with
     rows indexed by the values of the first column in the *.states* file.
 
-    The columns argument passed needs to contain names for *all* the columns
-    *except the first* column, which is assumed to be the `states` index.
+    The `columns` argument passed needs to contain names for *all* the columns
+    *including the first* column, which is assumed to be the `states` index.
+    The first column `columns[0]` needs to be "i" as so it is explicitly asserted
+    that it is included.
 
     The generated `pandas.DataFrames` are cast explicitly to ``dtype=str``,
     to avoid possible nasty surprises caused by `pandas` guessing the types itself.
@@ -35,9 +37,9 @@ def states_chunks(states_path, chunk_size, columns):
         Chunk size, should be chosen appropriately with regards to the RAM size.
         Roughly 1_000_000 per 1GB consumed.
     columns : iterable of str
-        Column names for all the columns in the *.states* file except the first one,
-        which is assumed to be the `states` index.
-        Therefore, ``len(columns)`` must be one less than the number of actual columns
+        Column names for all the columns in the *.states* file including the (first)
+        index column named "i".
+        Therefore, ``len(columns)`` must be equal the number of actual columns
         in the *.states* file.
 
     Yields
@@ -46,7 +48,8 @@ def states_chunks(states_path, chunk_size, columns):
         Generated chunks of the *.states* file, each is a `pandas.DataFrame` with
         columns according to the `columns` passed, and indexed by the values in the
         first column in the *.states* file.
-        The whole `DataFrame` is of string (`object`) data type.
+        The whole `DataFrame` is of string (``"O"``) data type, except the index, which
+        is ``"int64"``.
 
     Raises
     ------
@@ -57,7 +60,7 @@ def states_chunks(states_path, chunk_size, columns):
     Examples
     --------
     >>> sp = "tests/resources/dummy_states_10x5_int_float_int_str_int.states.bz2"
-    >>> states_columns = ["col1", "col2", "col3", "col4"]
+    >>> states_columns = ["i", "col1", "col2", "col3", "col4"]
     >>> for df in states_chunks(states_path=sp, chunk_size=5, columns=states_columns):
     ...     print(df)  # synthetic, unphysical data as an example
     ...     break
@@ -68,6 +71,8 @@ def states_chunks(states_path, chunk_size, columns):
     4   0.4704792592345922   95    d    1
     5   0.8168636898850669    6    e    9
     """
+    if columns[0] != "i":
+        raise StatesParseError("The first column of any .states file needs to be 'i'.")
     try:
         chunks = load_dataframe_chunks(
             file_path=states_path,

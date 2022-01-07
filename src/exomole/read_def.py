@@ -168,8 +168,8 @@ class DefParser:
     >>> parser.get_quanta_labels()
     ['par', 'v', 'N', 'e/f']
     >>> # with parser.lifetime_availability, we expect 9 columns in the .states file
-    >>> parser.number_states_columns_expected()
-    9
+    >>> parser.get_states_header()
+    ['i', 'E', 'g_tot', 'J', 'tau', 'par', 'v', 'N', 'e/f']
     """
 
     def __init__(
@@ -390,20 +390,21 @@ class DefParser:
         """
         return [q.label for q in self.quanta]
 
-    def number_states_columns_expected(self):
-        """Number of columns all together expected in the associated *.states* file
-        belonging to the same data-set.
+    def get_states_header(self):
+        """Get the header (column names) for the associated *.states* file
 
-        This number depends on the number of quanta parsed from the *.def* file, as well
-        as the `lifetime_availability` and the `lande_factor_availability` attributes
-        also extracted from the *.def* file text.
+        The column names consist of the mandatory part, canonically named as
+        ["i", "E", "g_tot", "J"], followed by optional columns "tau", "g_J" and by
+        the quanta labels.
 
         Returns
         -------
-        int
+        list of str
         """
-        return (
-            4
-            + sum([self.lifetime_availability, self.lande_factor_availability])
-            + len(self.get_quanta_labels())
-        )
+        states_header = ["i", "E", "g_tot", "J"]
+        if self.lifetime_availability:
+            states_header.append("tau")
+        if self.lande_factor_availability:
+            states_header.append("g_J")
+        states_header.extend(self.get_quanta_labels())
+        return states_header
