@@ -119,14 +119,25 @@ def test_invalid_iso_formula(monkeypatch):
         def_parser.parse(warn_on_comments=False)
 
 
+def test_invalid_isotope_formula(monkeypatch):
+    monkeypatch.setattr(
+        exomole.read_def,
+        "get_file_raw_text_over_api",
+        lambda *args, **kwargs: example_def_raw_text.replace(
+            "Ca  # Element symbol 1", "Carrot  # Element symbol 1"
+        )
+    )
+    with pytest.raises(DefParseError):
+        DefParser().parse(warn_on_comments=False)
+
+
 def test_invalid_num_atoms(monkeypatch):
     monkeypatch.setattr(
         exomole.read_def,
         "get_file_raw_text_over_api",
         lambda *args, **kwargs: example_def_raw_text.replace(
-            "2                                                                       "
-            "        # Number of atoms",
-            "3       # Number of atoms",
+            "2  # Number of atoms",
+            "3  # Number of atoms",
         ),
     )
     def_parser = DefParser()
@@ -141,7 +152,7 @@ def test_invalid_line_value_type(monkeypatch):
         lambda *args, **kwargs: example_def_raw_text.replace("20160726", "foo"),
     )
     def_parser = DefParser()
-    with pytest.raises(DefParseError, match=".*Unexpected value type*"):
+    with pytest.raises(DefParseError, match=".*Unexpected value type.*"):
         def_parser.parse(warn_on_comments=False)
 
 
@@ -152,7 +163,7 @@ def test_invalid_line_format(monkeypatch):
         lambda *args, **kwargs: example_def_raw_text.replace("# ID", "    "),
     )
     def_parser = DefParser()
-    with pytest.raises(DefParseError, match=".*Unexpected line format*"):
+    with pytest.raises(DefParseError, match=".*Unexpected line format.*"):
         def_parser.parse(warn_on_comments=False)
 
 
@@ -186,5 +197,49 @@ def test_unexpected_file_id(monkeypatch):
         ),
     )
     def_parser = DefParser()
-    with pytest.raises(DefParseError, match=".*Unexpected ID*"):
+    with pytest.raises(DefParseError, match=".*Unexpected ID.*"):
         def_parser.parse(warn_on_comments=False)
+
+
+def test_inconsistent_number_of_isotopes(monkeypatch):
+    # add one duplicate isotope into the number of atoms and the formula, but not
+    # as the actual isotope lines. This is what is common in .def files and should
+    # parse with warning.
+    patched_text = example_def_raw_text.replace(
+        "(40Ca)(1H)  # IsoFormula", "(40Ca)(1H)2  # IsoFormula"
+    ).replace(
+        "2  # Number of atoms", "3  # Number of atoms"
+    )
+    # but still only 40Ca and 1H isotopes listed
+    monkeypatch.setattr(
+        exomole.read_def,
+        "get_file_raw_text_over_api",
+        lambda *args, **kwargs: patched_text
+    )
+    def_parser = DefParser()
+    with pytest.warns(LineWarning, match="Incorrect number of isotopes listed.*"):
+        def_parser.parse(warn_on_comments=False)
+    assert len(def_parser.isotopes) == 2
+
+
+def test_duplicated_isotopes(monkeypatch):
+    patched_text = example_def_raw_text.replace(
+        "(40Ca)(1H)  # IsoFormula", "(40Ca)(1H)2  # IsoFormula"
+    ).replace(
+        "2  # Number of atoms", "3  # Number of atoms"
+    ).replace(
+        "40.970416 6.80329753e-26  # Isotopologue mass (Da) and (kg)",
+        "1  # Isotope number 3\n"
+        "H  # Element symbol 3\n"
+        "40.970416 6.80329753e-26  # Isotopologue mass (Da) and (kg)"
+    )
+    monkeypatch.setattr(
+        exomole.read_def,
+        "get_file_raw_text_over_api",
+        lambda *args, **kwargs: patched_text
+    )
+    def_parser = DefParser()
+    with pytest.warns(None) as record:
+        def_parser.parse(warn_on_comments=True)
+    assert not record
+    assert len(def_parser.isotopes) == 3

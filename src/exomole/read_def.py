@@ -1,12 +1,12 @@
 """Module grouping some data-classes and the parser for reading and parsing the
 ExoMol *.def* files.
 """
-
+import warnings
 from pathlib import Path
 
 from pyvalem.formula import Formula, FormulaParseError
 
-from .exceptions import LineValueError, LineCommentError, DefParseError
+from .exceptions import LineValueError, LineCommentError, LineWarning, DefParseError
 from .utils import DataClass
 from .utils import get_file_raw_text_over_api, parse_exomol_line
 
@@ -256,14 +256,16 @@ class DefParser:
             Raised if value on any line cannot be cast to the expected ``type``, or if
             the parser runs out of lines. This error signals an inconsistent *.def*
             file. Also raised when any other inconsistencies are detected, such as
-            inconsistent number of atoms, formula not supported by the `PyValem`
-            package, etc.
+            formula not supported by the `PyValem` package, etc.
 
         Warns
         -----
         LineWarning
             Raised if `warns_on_comments` is ``True`` and if the comment on any line
             does not match the expected text hard-coded in this method.
+            Also raised if any empty line is present in the .def file, or of the
+            number of isotope sections does not match the number of atoms in the
+            isotopologue.
 
         Warnings
         --------
@@ -275,9 +277,9 @@ class DefParser:
         lines = self.raw_text.split("\n")
         n_orig = len(lines)
 
-        def parse_line(expected_comment, val_type=None):
+        def parse_line(expected_comment, val_type=None, local_lines=lines):
             return parse_exomol_line(
-                lines,
+                local_lines,
                 n_orig,
                 expected_comment=expected_comment,
                 file_name=self.file_name,
@@ -304,11 +306,51 @@ class DefParser:
                 raise DefParseError(f"{str(e)} (raised in {self.file_name})")
             if formula.natoms != num_atoms:
                 raise DefParseError(f"Incorrect number of atoms in {self.file_name}")
-            for i in range(num_atoms):
+            # many (probably all) .def files for polyatomic datasets actually do not
+            # list all isotopes, but rather only all *distinct* isotopes.from
+            # I'll handle this with a Warning.
+            num_distinct_atoms = len(formula.atoms)
+
+            def add_isotope(num, el_symbol):
+                try:
+                    Formula(f"({num}{el_symbol})")
+                except FormulaParseError as exc:
+                    raise DefParseError(f"{str(exc)} (raised in {self.file_name})")
+                isotope = Isotope(number=num, element_symbol=el_symbol)
+                self.isotopes.append(isotope)
+
+            i = 0
+            for i in range(num_distinct_atoms):
                 number = parse_line(f"Isotope number {i + 1}", int)
                 element_symbol = parse_line(f"Element symbol {i + 1}")
-                isotope = Isotope(number=number, element_symbol=element_symbol)
-                self.isotopes.append(isotope)
+                add_isotope(number, element_symbol)
+            if num_distinct_atoms < num_atoms:
+                num_additional_isotopes_expected = num_atoms - num_distinct_atoms
+                lines_clone = lines.copy()
+                try:
+                    for j in range(i + 1, i + 1 + num_additional_isotopes_expected):
+                        number = parse_line(
+                            f"Isotope number {j + 1}", int, local_lines=lines_clone
+                        )
+                        element_symbol = parse_line(
+                            f"Element symbol {j + 1}", local_lines=lines_clone
+                        )
+                        add_isotope(number, element_symbol)
+                except (LineValueError, LineCommentError):
+                    # This means that the .def file lists only distinct isotopes, not
+                    # all isotopes, as it should. Handle with Warning and continue with
+                    # the original lines
+                    warnings.warn(
+                        f"Incorrect number of isotopes listed in {self.file_name}",
+                        LineWarning,
+                    )
+                else:
+                    # This means that the try clause did not raise anything, meaning
+                    # all the isotopes were listed in the .def file. Need to sync
+                    # lines with the lines_clone:
+                    for _ in range(2 * num_additional_isotopes_expected):
+                        lines.pop(0)
+
             iso_mass_amu = float(
                 parse_line("Isotopologue mass (Da) and (kg)").split()[0]
             )
