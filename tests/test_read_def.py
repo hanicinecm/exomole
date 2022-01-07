@@ -125,7 +125,7 @@ def test_invalid_isotope_formula(monkeypatch):
         "get_file_raw_text_over_api",
         lambda *args, **kwargs: example_def_raw_text.replace(
             "Ca  # Element symbol 1", "Carrot  # Element symbol 1"
-        )
+        ),
     )
     with pytest.raises(DefParseError):
         DefParser().parse(warn_on_comments=False)
@@ -207,14 +207,12 @@ def test_inconsistent_number_of_isotopes(monkeypatch):
     # parse with warning.
     patched_text = example_def_raw_text.replace(
         "(40Ca)(1H)  # IsoFormula", "(40Ca)(1H)2  # IsoFormula"
-    ).replace(
-        "2  # Number of atoms", "3  # Number of atoms"
-    )
+    ).replace("2  # Number of atoms", "3  # Number of atoms")
     # but still only 40Ca and 1H isotopes listed
     monkeypatch.setattr(
         exomole.read_def,
         "get_file_raw_text_over_api",
-        lambda *args, **kwargs: patched_text
+        lambda *args, **kwargs: patched_text,
     )
     def_parser = DefParser()
     with pytest.warns(LineWarning, match="Incorrect number of isotopes listed.*"):
@@ -223,20 +221,22 @@ def test_inconsistent_number_of_isotopes(monkeypatch):
 
 
 def test_duplicated_isotopes(monkeypatch):
-    patched_text = example_def_raw_text.replace(
-        "(40Ca)(1H)  # IsoFormula", "(40Ca)(1H)2  # IsoFormula"
-    ).replace(
-        "2  # Number of atoms", "3  # Number of atoms"
-    ).replace(
-        "40.970416 6.80329753e-26  # Isotopologue mass (Da) and (kg)",
-        "1  # Isotope number 3\n"
-        "H  # Element symbol 3\n"
-        "40.970416 6.80329753e-26  # Isotopologue mass (Da) and (kg)"
+    patched_text = (
+        example_def_raw_text.replace(
+            "(40Ca)(1H)  # IsoFormula", "(40Ca)(1H)2  # IsoFormula"
+        )
+        .replace("2  # Number of atoms", "3  # Number of atoms")
+        .replace(
+            "40.970416 6.80329753e-26  # Isotopologue mass (Da) and (kg)",
+            "1  # Isotope number 3\n"
+            "H  # Element symbol 3\n"
+            "40.970416 6.80329753e-26  # Isotopologue mass (Da) and (kg)",
+        )
     )
     monkeypatch.setattr(
         exomole.read_def,
         "get_file_raw_text_over_api",
-        lambda *args, **kwargs: patched_text
+        lambda *args, **kwargs: patched_text,
     )
     def_parser = DefParser()
     with pytest.warns(None) as record:
