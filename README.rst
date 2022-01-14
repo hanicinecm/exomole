@@ -1,6 +1,6 @@
 |Test Action| |GitHub license| |PyPI version| |PyPI pyversions| |Code Style|
 
-.. |Test Action| image:: https://github.com/hanicinecm/exomole/workflows/test/badge.svg
+.. |Test Action| image:: https://github.com/hanicinecm/exomole/workflows/tests/badge.svg
    :target: https://github.com/hanicinecm/exomole/actions
 .. |GitHub license| image:: https://img.shields.io/github/license/hanicinecm/exomole.svg
    :target: https://github.com/hanicinecm/exomole/blob/master/LICENSE
