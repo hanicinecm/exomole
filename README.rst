@@ -1,6 +1,8 @@
-|PyPI version|
+|PyPI version| |PyPI pyversions|
 
 .. |PyPI version| image:: https://img.shields.io/pypi/v/exomole.svg
+   :target: https://pypi.python.org/pypi/exomole/
+.. |PyPI pyversions| image:: https://img.shields.io/pypi/pyversions/exomole.svg
    :target: https://pypi.python.org/pypi/exomole/
 
 ***********************
