@@ -1,5 +1,7 @@
-|GitHub license| |PyPI version| |PyPI pyversions| |Code Style|
+|Test Action| |GitHub license| |PyPI version| |PyPI pyversions| |Code Style|
 
+.. |Test Action| image:: https://github.com/hanicinecm/exomole/workflows/test/badge.svg
+   :target: https://github.com/hanicinecm/exomole/actions
 .. |GitHub license| image:: https://img.shields.io/github/license/hanicinecm/exomole.svg
    :target: https://github.com/hanicinecm/exomole/blob/master/LICENSE
 .. |PyPI version| image:: https://img.shields.io/pypi/v/exomole.svg
@@ -7,7 +9,7 @@
 .. |PyPI pyversions| image:: https://img.shields.io/pypi/pyversions/exomole.svg
    :target: https://pypi.python.org/pypi/exomole/
 .. |Code Style| image:: https://img.shields.io/badge/code%20style-black-000000.svg
-   :target: https://github.com/psf.black
+   :target: https://github.com/psf/black
 
 ***********************
 Introduction to ExoMole
