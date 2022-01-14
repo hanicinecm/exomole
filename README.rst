@@ -1,3 +1,7 @@
+|PyPI version|
+
+.. |PyPI version| image:: https://img.shields.io/pypi/v/ansicolortags.svg
+   :target: https://pypi.python.org/pypi/exomole/
 
 ***********************
 Introduction to ExoMole
