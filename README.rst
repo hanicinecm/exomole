@@ -1,6 +1,6 @@
 |PyPI version|
 
-.. |PyPI version| image:: https://img.shields.io/pypi/v/ansicolortags.svg
+.. |PyPI version| image:: https://img.shields.io/pypi/v/exomole.svg
    :target: https://pypi.python.org/pypi/exomole/
 
 ***********************
