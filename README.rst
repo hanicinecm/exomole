@@ -1,5 +1,7 @@
-|PyPI version| |PyPI pyversions|
+|GitHub license| |PyPI version| |PyPI pyversions|
 
+.. |GitHub license| image:: https://img.shields.io/github/license/hanicinecm/exomole.svg
+   :target: https://github.com/hanicinecm/exomole/blob/master/LICENSE
 .. |PyPI version| image:: https://img.shields.io/pypi/v/exomole.svg
    :target: https://pypi.python.org/pypi/exomole/
 .. |PyPI pyversions| image:: https://img.shields.io/pypi/pyversions/exomole.svg
