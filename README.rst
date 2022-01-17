@@ -1,14 +1,16 @@
-|Test Action| |GitHub license| |PyPI version| |PyPI pyversions| |Code Style|
+|Test action| |Codecov report| |GitHub license| |PyPI version| |PyPI pyversions| |Code style|
 
-.. |Test Action| image:: https://github.com/hanicinecm/exomole/workflows/tests/badge.svg
+.. |Test action| image:: https://github.com/hanicinecm/exomole/workflows/tests/badge.svg
    :target: https://github.com/hanicinecm/exomole/actions
+.. |Codecov report| image:: https://codecov.io/gh/hanicinecm/exomole/branch/master/graph/badge.svg?token=KUVZYCM51S
+   :target: https://codecov.io/gh/hanicinecm/exomole
 .. |GitHub license| image:: https://img.shields.io/github/license/hanicinecm/exomole.svg
    :target: https://github.com/hanicinecm/exomole/blob/master/LICENSE
 .. |PyPI version| image:: https://img.shields.io/pypi/v/exomole.svg
    :target: https://pypi.python.org/pypi/exomole/
 .. |PyPI pyversions| image:: https://img.shields.io/pypi/pyversions/exomole.svg
    :target: https://pypi.python.org/pypi/exomole/
-.. |Code Style| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+.. |Code style| image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
 
 ***********************
