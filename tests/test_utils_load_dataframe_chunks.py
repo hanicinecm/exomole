@@ -3,7 +3,7 @@ import re
 import pytest
 
 import exomole
-from exomole.utils import load_dataframe_chunks, DataParseError
+from exomole.utils import load_dataframe_chunks, DataParseError, _get_compression
 from . import resources_path
 
 
@@ -163,3 +163,24 @@ def test_load_data_with_index_no_columns(monkeypatch):
         assert list(chunk.index) == [0, 5, 10, 15, 20]
         assert str(chunk.loc[20, 4]) == "24"
         assert chunk.shape == (5, 4)
+
+
+def test_get_compression():
+    assert _get_compression("some_path/data.bz2") == "bz2"
+    assert _get_compression("some_path/data.txt") is None
+
+
+def test_load_data_no_compression(monkeypatch):
+    monkeypatch.setattr(exomole.utils, "get_num_columns", lambda x: 5)
+    for chunk in load_dataframe_chunks(
+        resources_path / "dummy_data_5x5_int.no_compression",
+        5,
+        first_col_is_index=False,
+        column_names="a b c d e".split(),
+        check_num_columns=True,
+        dtype=int,
+    ):
+        assert list(chunk.columns) == "a b c d e".split()
+        assert list(chunk.index) == [0, 1, 2, 3, 4]
+        assert str(chunk.loc[4, "e"]) == "24"
+        assert chunk.shape == (5, 5)

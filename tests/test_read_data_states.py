@@ -66,3 +66,11 @@ def test_incompatible_columns():
     with pytest.raises(StatesParseError):
         for _ in states_chunks(dummy_states_path, 2, columns="foo a b c d".split()):
             pass
+
+
+def test_no_compression():
+    columns = "i a b c d".split()
+    states_path = resources_path.joinpath("dummy_data_5x5_int.no_compression")
+    for chunk in states_chunks(states_path, chunk_size=5, columns=columns):
+        assert list(chunk.columns) == "a b c d".split()
+        assert chunk.at[5, "c"] == "8"

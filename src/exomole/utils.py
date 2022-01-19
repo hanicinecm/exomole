@@ -229,7 +229,7 @@ def load_dataframe_chunks(
 
     df_chunks = pandas.read_csv(
         file_path,
-        compression="bz2",
+        compression=_get_compression(file_path),
         sep=r"\s+",
         header=None,
         index_col=None if not first_col_is_index else 0,
@@ -242,6 +242,23 @@ def load_dataframe_chunks(
         dtype=dtype,
     )
     return df_chunks
+
+
+def _get_compression(file_path):
+    """Function extracting the file compression out of the `file_path` passed.
+
+    Parameters
+    ----------
+    file_path : str or Path
+
+    Returns
+    -------
+    str or NoneType
+    """
+    if str(file_path).endswith("bz2"):
+        return "bz2"
+    else:
+        return None
 
 
 def get_num_columns(file_path):
