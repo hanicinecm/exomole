@@ -355,6 +355,12 @@ class DefParser:
                 parse_line("Isotopologue mass (Da) and (kg)").split()[0]
             )
             self.mass = iso_mass_amu
+            if round(self.mass, 2) != round(formula.mass, 2):
+                warnings.warn(
+                    f"Incorrect isotopologue mass listed in {self.file_name}",
+                    LineWarning,
+                )
+                self.mass = float(formula.mass)
             self.symmetry_group = parse_line("Symmetry group")
             self.irreducible_representations = []
             num_irreducible_representations = parse_line(

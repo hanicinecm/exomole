@@ -145,6 +145,22 @@ def test_invalid_num_atoms(monkeypatch):
         def_parser.parse(warn_on_comments=False)
 
 
+def test_incorrect_mass(monkeypatch):
+    incorrect_mass = 42.0
+    monkeypatch.setattr(
+        exomole.read_def,
+        "get_file_raw_text_over_api",
+        lambda *args, **kwargs: example_def_raw_text.replace(
+            "40.970416 6.80329753e-26  # Isotopologue mass (Da) and (kg)",
+            f"{incorrect_mass} 6.80329753e-26  # Isotopologue mass (Da) and (kg)",
+        ),
+    )
+    def_parser = DefParser()
+    with pytest.warns(LineWarning, match="Incorrect isotopologue mass.*"):
+        def_parser.parse(warn_on_comments=False)
+    assert def_parser.mass != incorrect_mass  # was the mass corrected?
+
+
 def test_invalid_line_value_type(monkeypatch):
     monkeypatch.setattr(
         exomole.read_def,
@@ -230,7 +246,7 @@ def test_duplicated_isotopes(monkeypatch):
             "40.970416 6.80329753e-26  # Isotopologue mass (Da) and (kg)",
             "1  # Isotope number 3\n"
             "H  # Element symbol 3\n"
-            "40.970416 6.80329753e-26  # Isotopologue mass (Da) and (kg)",
+            "41.978240 6.80329753e-26  # Isotopologue mass (Da) and (kg)",
         )
     )
     monkeypatch.setattr(
