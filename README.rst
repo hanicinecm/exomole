@@ -85,7 +85,7 @@ Always make sure to format your code before submitting a pull request, by runnin
 ``black`` on all your python files.
 
 
-.. _documentation: https://github.com/hanicinecm/exomole/tree/master/docs
+.. _documentation: https://github.com/hanicinecm/exomole/tree/master/docs/index.rst
 .. _ExoMol: https://www.exomol.com/
 .. _release paper: https://doi.org/10.1016/j.jms.2016.05.002
 .. _GitHub: https://github.com/hanicinecm/exomole
