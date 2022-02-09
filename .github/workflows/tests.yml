@@ -22,7 +22,8 @@ jobs:
         pip install .
     - name: Install dependencies for testing
       run: |
-        pip install pytest-cov==3.0.0
+        pip install pytest-cov
+        pip install pytest==6.2.5
         pip install black
     - name: Run unit tests and test the docs
       run: |
