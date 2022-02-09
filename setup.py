@@ -39,6 +39,6 @@ setup(
     },
     project_urls={
         "Bug Reports": "https://github.com/hanicinecm/exomole/issues",
-        "Documentation": "https://github.com/hanicinecm/exomole/tree/master/docs"
+        "Documentation": "https://github.com/hanicinecm/exomole/tree/master/docs",
     },
 )
