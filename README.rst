@@ -19,15 +19,14 @@ Introduction to ExoMole
 
 Meet **ExoMole**, a creature that feeds on data and meta-data files of the
 ExoMol_ database.
-ExoMole package provides code for parsing, validation and access to the ExoMol
-meta-data and data either from local file system or over the ExoMol public API defined
-in the database `release paper`_.
-
-The code in the package is organised into several modules. The ``read_all`` and
-``read_def`` modules contain functionality for parsing, validation and analysis of the
-ExoMole's *.all* and *.def* meta-data files, while the ``read_data`` module groups
-functionality for reading and validating the *.states* and *.trans* data files.
-
+The ``exomole`` package provides code for parsing, validation and access to the ExoMol
+meta-data and data.
+The package is primarily used for ExoMol database developers and maintainers, as most of
+the features require access to the ExoMol files. The code therefore works the best if
+installed directly on the ExoMol server.
+Nevertheless, several features of the package are also relevant from outside the ExoMol
+production server, tapping into the ExoMol public API defined in the database
+`release paper`_.
 
 Installation:
 =============
@@ -44,11 +43,88 @@ or from the GitHub_ page
 
     python3 -m pip install git+https://github.com/hanicinecm/exomole.git
 
-or from the source by navigating to the project root directory and running
+Examples:
+=========
 
-.. code-block:: bash
+The code in the package is organised into several modules. The ``read_all`` and
+``read_def`` modules contain functionality for parsing, validation and analysis of the
+ExoMole's *.all* and *.def* meta-data files, while the ``read_data`` module groups
+functionality for reading and validating the *.states* and *.trans* data files.
 
-    python3 -m pip install .
+ExoMol .all master file
+-----------------------
+The ``exomole.read_all.AllParser`` is a class dedicated to reading and parsing the
+ExoMol master file *exomol.all*.
+It may be called either from outside the ExoMol server, requesting the file over the
+public API:
+
+.. code-block:: pycon
+
+    >>> from exomole.read_all import AllParser
+    >>> all_parser = AllParser()
+
+or from the ExoMol server, supplying the full path to the master file:
+
+.. code-block:: pycon
+
+    >>> from pathlib import Path
+    >>> # replace with the relevant path on the server:
+    >>> exomol_data_path = Path("tests/resources/exomol_data")
+    >>> all_parser = AllParser(path=exomol_data_path/"exomol.all")
+
+    >>> print(all_parser.raw_text[:300] + "...")
+    EXOMOL.master                                                                   # ID
+    20210707                                                                        # Version number with format YYYYMMDD
+      80                                                                            # Number of molec...
+
+
+The ``AllParser`` can parse all the master file data, if they adhere to the file
+standard defined in the `release paper`_, and it stores the parsed data in convenient
+nested structures:
+
+.. code-block:: pycon
+
+    >>> all_parser.parse()
+    >>> all_parser.id
+    'EXOMOL.master'
+
+    >>> all_parser.version
+    20210707
+
+    >>> len(all_parser.molecules)
+    80
+
+    >>> list(all_parser.molecules.keys())[:10]
+    ['H2O', 'CO2', 'CO', 'CH4', 'NO', 'SO2', 'NH3', 'HNO3', 'OH', 'HF']
+
+    >>> mol = all_parser.molecules["OH"]
+    >>> mol
+    Molecule(OH)
+
+    >>> mol.isotopologues
+    {'(16O)(1H)': Isotopologue(16O-1H)}
+
+    >>> iso = mol.isotopologues["(16O)(1H)"]
+    >>> iso.version
+    20180719
+
+    >>> iso.dataset_name
+    'MoLLIST'
+
+    >>> iso.inchi_key
+    'TUJKJAMUKRIRHC-UHFFFAOYSA-N'
+
+Finally, a high-level function is provided, returning a parsed ``AllParser``, which
+needs to be called either without arguments from within the exomol directory on the
+server, or with a path leading to the data directory as a single argument:
+
+.. code-block:: pycon
+
+    >>> from exomole.read_all import parse
+    >>>
+    >>> # again, swap the path for the real one on the server
+    >>> parse(data_dir_path="tests/resources/exomol_data")
+    <AllParser: parsed>
 
 
 For Developers:
@@ -68,7 +144,7 @@ The tests can then be executed by running (from the project root directory)
 
 .. code-block:: bash
 
-    pytest --cov --doctest-modules
+    pytest
 
 The project does not have the ``requirements.txt`` file by design, as all the package
 dependencies are rather handled by the ``setup.py``.

@@ -179,6 +179,7 @@ class DefParser:
         isotopologue_slug=None,
         dataset_name=None,
     ):
+        self.local = path is not None
         self.raw_text = None
         self.file_name = None
         self._save_raw_text(path, molecule_slug, isotopologue_slug, dataset_name)

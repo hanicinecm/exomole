@@ -145,6 +145,10 @@ class AllParser:
         self.num_datasets = None
         self.molecules = None
 
+    def __repr__(self):
+        status = "parsed" if self.molecules is not None else "not parsed"
+        return f"<AllParser: {status}>"
+
     def _save_raw_text(self, path):
         """Save the raw text of a *.all* file as an instance attribute.
 
@@ -165,7 +169,7 @@ class AllParser:
                 self.raw_text = fp.read()
             self.file_name = Path(path).name
 
-    def parse(self, warn_on_comments):
+    def parse(self, warn_on_comments=True):
         """Parse the *.all* file text from the `raw_text` attribute.
 
         Populates all the instance attributes incrementally, util it hits the end of
@@ -174,13 +178,13 @@ class AllParser:
 
         Parameters
         ----------
-        warn_on_comments : bool
+        warn_on_comments : bool, default=True
             If ``True``, the comments behind the ``#`` symbol on each line are checked
             against some expected comments (hard-coded in the method) and the
             `LineWarning` is raised if they do not match.
 
         Raises
-        -------
+        ------
         AllParseError
             Raised if value on any line cannot be cast to the expected `type`, or if
             the parser runs out of lines. This error signals an inconsistent *.all*
@@ -307,3 +311,10 @@ class AllParser:
                 f"actual number ({len(set(all_datasets))})!",
                 AllParseWarning,
             )
+
+
+def parse(data_dir_path=None):
+    data_dir_path = Path(data_dir_path) if data_dir_path is not None else Path(".")
+    all_parser = AllParser(path=data_dir_path / "exomol.all")
+    all_parser.parse()
+    return all_parser
