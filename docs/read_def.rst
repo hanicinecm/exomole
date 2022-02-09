@@ -1,5 +1,5 @@
-Parsing and validation of the .def files
-****************************************
+Parsing and validating the .def files
+*************************************
 
 
 

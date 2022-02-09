@@ -1,5 +1,5 @@
-Parsing and validation of the exomol.all master file
-****************************************************
+Parsing and validating the exomol.all master file
+*************************************************
 
 The ``exomole.read_all.AllParser`` is a class dedicated to reading and parsing the
 ExoMol master file *exomol.all*.
