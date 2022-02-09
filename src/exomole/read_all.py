@@ -145,10 +145,6 @@ class AllParser:
         self.num_datasets = None
         self.molecules = None
 
-    def __repr__(self):
-        status = "parsed" if self.molecules is not None else "not parsed"
-        return f"<AllParser: {status}>"
-
     def _save_raw_text(self, path):
         """Save the raw text of a *.all* file as an instance attribute.
 
@@ -313,7 +309,27 @@ class AllParser:
             )
 
 
-def parse(data_dir_path=None):
+def parse_master(data_dir_path=None):
+    """A top-level function for getting and parsing the exomol.all
+    master file.
+
+    Parameters
+    ----------
+    data_dir_path : Path or str, optional
+        Path to the exomol data directory, containing all the
+        directories belonging to all the individual molecules.
+        Does not need to be passed if called from within the directory.
+
+    Returns
+    -------
+    AllParser
+        Parsed instance of the AllParser class.
+
+    Raises
+    ------
+    AllParseError
+        See the AllParser.parse method.
+    """
     data_dir_path = Path(data_dir_path) if data_dir_path is not None else Path(".")
     all_parser = AllParser(path=data_dir_path / "exomol.all")
     all_parser.parse()

@@ -1,10 +1,14 @@
+*************************************************
 Parsing and validating the exomol.all master file
 *************************************************
 
 The ``exomole.read_all.AllParser`` is a class dedicated to reading and parsing the
 ExoMol master file *exomol.all*.
-It may be called either from outside the ExoMol server, requesting the file over the
-public API:
+The following text lists some of the useful examples, for greater detail, refer to the
+code and docstrings.
+
+The ``AllParser`` may be instantiated either from outside the ExoMol server, which
+requests the file over the public API:
 
 .. code-block:: pycon
 
@@ -12,7 +16,8 @@ public API:
 
     >>> all_parser = AllParser()
 
-or from the ExoMol server, supplying the full path to the master file:
+or from the ExoMol server, in which case the full path to the master file needs to be
+supplied:
 
 .. code-block:: pycon
 
@@ -22,11 +27,12 @@ or from the ExoMol server, supplying the full path to the master file:
     >>> exomol_data_path = Path("tests/resources/exomol_data")
     >>> all_parser = AllParser(path=exomol_data_path/"exomol.all")
 
-    >>> print(all_parser.raw_text[:300] + "...")
+    >>> print(all_parser.raw_text)
     EXOMOL.master                                                                   # ID
     20210707                                                                        # Version number with format YYYYMMDD
-      80                                                                            # Number of molec...
-
+      80                                                                            # Number of molecules in the database
+    ...
+    20201201                                                                        # Version number with format YYYYMMDD
 
 The ``AllParser`` can parse all the master file data, if they adhere to the file
 standard defined in the `release paper`_, and it stores the parsed data in convenient
@@ -71,23 +77,23 @@ single argument:
 
 .. code-block:: pycon
 
-    >>> from exomole.read_all import parse
+    >>> from exomole.read_all import parse_master
 
     >>> # again, swap the path for the real one on the server
-    >>> parse(data_dir_path="tests/resources/exomol_data")
-    <AllParser: parsed>
+    >>> parse_master(data_dir_path="tests/resources/exomol_data")
+    <exomole.read_all.AllParser...>
 
 If the *exomol.all* file cannot be parsed for some reason (most likely because of the
 structure of the file does not agree with the defined standard), the ``AllParseError``
 is raised, hopefully detailing the reason.
-The ``AllParser`` can also be instantiated with the ``warn_on_comments=True`` flag,
+The ``AllParser.parse`` method will also trigger warnings, whenever any minor problems
+are detected in the file, such as inconsistent comments, blank lines, etc.
+To suppress these warnings, the ``parse`` method can be called with the optional
+``warn_on_comments=False`` argument,
 
 .. code-block:: pycon
 
-    >>> all_parser = AllParser(warn_on_comments=True)
-
-in which case the ``parse`` method will trigger warnings whenever some minor problems
-are detected in the file, such as inconsistent comments, blank lines, etc.
+    >>> all_parser = all_parser.parse(warn_on_comments=False)
 
 
 .. _release paper: https://doi.org/10.1016/j.jms.2016.05.002

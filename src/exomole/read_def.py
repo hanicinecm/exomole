@@ -237,7 +237,7 @@ class DefParser:
                 self.raw_text = fp.read()
             self.file_name = Path(path).name
 
-    def parse(self, warn_on_comments):
+    def parse(self, warn_on_comments=True):
         """Parse the *.def* file text from the `raw_text` attribute.
 
         Populates all the instance attributes incrementally, util it hits the end of
@@ -457,3 +457,58 @@ class DefParser:
             states_header.append("g_J")
         states_header.extend(self.get_quanta_labels())
         return states_header
+
+
+def parse_def(isotopologue_slug, dataset_name=None, data_dir_path=None):
+    """A top-level function for getting and parsing the exomol .def file
+    belonging to a single dataset.
+
+    In the best case, this can be called from within the exomol data
+    directory on the ExoMol server, only with the isotopologue slug
+    as the single argument.
+
+    Parameters
+    ----------
+    isotopologue_slug : str
+        Isotopologue slug of the dataset the .def file of which should
+        be parsed and returned.
+    dataset_name : str, optional
+        Only needed if more than a single dataset exists for the given
+        isotopologue.
+    data_dir_path : Path or str, optional
+        Path to the exomol data directory, containing all the
+        directories belonging to all the individual molecules.
+        Does not need to be passed if called from within the directory.
+
+    Returns
+    -------
+    DefParser
+        Parsed instance of the DefParser class.
+
+    Raises
+    ------
+    DefParseError
+        If the .def file could not be found or if more than a single
+        dataset exists for the given isotopologue slug.
+        See the DefParser.parse
+    """
+    data_dir_path = Path(data_dir_path) if data_dir_path is not None else Path(".")
+    if dataset_name is None:
+        dataset_name = "*"
+    wildcard = (
+        f"*/{isotopologue_slug}/{dataset_name}/{isotopologue_slug}_{dataset_name}.def"
+    )
+    def_files_available = sorted(data_dir_path.glob(wildcard))
+    if not def_files_available:
+        raise DefParseError(
+            f"No .def file for the {data_dir_path / wildcard} wildcard could be found!"
+        )
+    if len(def_files_available) > 1:
+        raise DefParseError(
+            f"Multiple .def files found: {def_files_available}. Please pass the "
+            f"dataset_name argument"
+        )
+    def_file_path = def_files_available[0]
+    def_parser = DefParser(path=def_file_path)
+    def_parser.parse()
+    return def_parser
