@@ -85,6 +85,19 @@ nested data structures. This is done by calling the ``parse`` method:
     >>> def_parser.quanta[1].description, def_parser.quanta[1].label
     ('State vibrational quantum number', 'v')
 
+If the .def file cannot be parsed by ``parse`` for some reason (most likely because of
+the structure of the file does not agree with the defined standard), the
+``DefParseError`` is raised, hopefully detailing the reason.
+
+The ``AllParser.parse`` method will also trigger warnings, whenever any minor problems
+are detected in the file, such as inconsistent comments, blank lines, etc.
+To suppress these warnings, the ``parse`` method can be called with the optional
+``warn_on_comments=False`` argument:
+
+.. code-block:: pycon
+
+    >>> def_parser.parse(warn_on_comments=False)
+
 Apart from the data parsed from the unstructured *.def* file, several higher-level
 methods are available for convenience:
 
@@ -96,6 +109,18 @@ methods are available for convenience:
     >>> # header expected for the .states file
     >>> def_parser.get_states_header()
     ['i', 'E', 'g_tot', 'J', 'tau', 'par', 'v', 'N', 'e/f']
+
+The ``check_consistency`` method goes a step further beyond just parsing, and checks
+if the *.states* file and at least one *.trans* file exist, and if the .states has
+the number of columns consistent with ``DefParser.get_states_header()``.
+It will raise ``DefConsistencyError`` if any of the checks fail:
+
+.. code-block:: pycon
+
+    >>> def_parser.check_consistency()
+    Traceback (most recent call last):
+     ...
+    exomole.exceptions.DefConsistencyError: A '40Ca-1H__Yadin.states*' file needs to exist in tests/resources/exomol_data/CaH/40Ca-1H/Yadin!
 
 Finally, a high-level function is provided for a quick and convenient parsing and
 validation of the dataset .def files identified by isotopologue slugs. This is only
@@ -125,19 +150,6 @@ exception is raised and the ``dataset_name`` attribute needs to be passed to the
       tests/resources/exomol_data/MgH/24Mg-1H/MoLLIST/24Mg-1H__MoLLIST.def
       tests/resources/exomol_data/MgH/24Mg-1H/Yadin/24Mg-1H__Yadin.def
     Please pass the dataset_name argument.
-
-If the .def file cannot be parsed for some reason (most likely because of the
-structure of the file does not agree with the defined standard), the ``DefParseError``
-is raised, hopefully detailing the reason.
-
-The ``AllParser.parse`` method will also trigger warnings, whenever any minor problems
-are detected in the file, such as inconsistent comments, blank lines, etc.
-To suppress these warnings, the ``parse`` method can be called with the optional
-``warn_on_comments=False`` argument:
-
-.. code-block:: pycon
-
-    >>> def_parser.parse(warn_on_comments=False)
 
 
 .. _release paper: https://doi.org/10.1016/j.jms.2016.05.002

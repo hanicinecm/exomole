@@ -31,6 +31,10 @@ class DefParseError(Exception):
     pass
 
 
+class DefConsistencyError(Exception):
+    pass
+
+
 class DataParseError(Exception):
     pass
 

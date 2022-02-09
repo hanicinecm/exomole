@@ -6,9 +6,19 @@ from pathlib import Path
 
 from pyvalem.formula import Formula, FormulaParseError
 
-from .exceptions import LineValueError, LineCommentError, LineWarning, DefParseError
-from .utils import DataClass
-from .utils import get_file_raw_text_over_api, parse_exomol_line
+from .exceptions import (
+    LineValueError,
+    LineCommentError,
+    LineWarning,
+    DefParseError,
+    DefConsistencyError,
+)
+from .utils import (
+    get_file_raw_text_over_api,
+    parse_exomol_line,
+    get_num_columns,
+    DataClass,
+)
 
 
 # noinspection PyUnresolvedReferences
@@ -180,6 +190,7 @@ class DefParser:
         dataset_name=None,
     ):
         self.local = path is not None
+        self.path = Path(path) if path is not None else None
         self.raw_text = None
         self.file_name = None
         self._save_raw_text(path, molecule_slug, isotopologue_slug, dataset_name)
@@ -208,6 +219,7 @@ class DefParser:
         self.num_trans_files = None
         self.max_wavenumber = None
         self.high_energy_complete = None
+        self.parsed = False
 
     def _save_raw_text(self, path, molecule_slug, isotopologue_slug, dataset_name):
         """Save the raw text of a *.def* file as an instance attribute
@@ -427,6 +439,47 @@ class DefParser:
             # file one day!
         except (LineValueError, LineCommentError) as e:
             raise DefParseError(str(e))
+        self.parsed = True
+
+    def check_consistency(self):
+        """A method checking the consistency between the .def file and
+        the .states file.
+
+        Only checks if the .states file and .trans files exist in the
+        expected path, and if the .states file has the expected number
+        of columns based on the .def file.
+        Will call the `parse` method, if not parsed yet.
+
+        Raises
+        ------
+        DefParseError
+            If `parse` not called yet before and the file could not be
+            parsed.
+        DefConsistencyError
+            If the .states or .trans files do not exist where they
+            should, or if the .states file has an unexpected number of
+            columns.
+        """
+        assert self.local, "check_consistency only available in the local mode!"
+        if not self.parsed:
+            self.parse(warn_on_comments=False)
+        file_name = self.path.name[:-4]
+        dataset_dir = self.path.parent
+        states_paths = list(dataset_dir.glob(f"{file_name}.states*"))
+        if len(states_paths) != 1:
+            raise DefConsistencyError(
+                f"A '{file_name}.states*' file needs to exist in {dataset_dir}!"
+            )
+        states_path = states_paths[0]
+        num_columns = get_num_columns(states_path)
+        if num_columns != len(self.get_states_header()):
+            raise DefConsistencyError(
+                f"The number of columns in {states_path.name} ({num_columns}) does not "
+                f"agree with the length of the expected .states header parsed from the "
+                f"{self.path.name} file ({len(self.get_states_header())})."
+            )
+        if not list(dataset_dir.glob(f"{file_name}.trans*")):
+            raise DefConsistencyError(f"No trans files found in {dataset_dir}!")
 
     def get_quanta_labels(self):
         """Quanta labels for all the quanta extracted from the parsed *.def* file.
@@ -459,7 +512,7 @@ class DefParser:
         return states_header
 
 
-def parse_def(isotopologue_slug, dataset_name=None, data_dir_path=None):
+def parse_def(isotopologue_slug, dataset_name=None, data_dir_path="."):
     """A top-level function for getting and parsing the exomol .def file
     belonging to a single dataset.
 
@@ -492,7 +545,7 @@ def parse_def(isotopologue_slug, dataset_name=None, data_dir_path=None):
         dataset exists for the given isotopologue slug.
         See the DefParser.parse
     """
-    data_dir_path = Path(data_dir_path) if data_dir_path is not None else Path(".")
+    data_dir_path = Path(data_dir_path)
     if dataset_name is None:
         dataset_name = "*"
     wildcard = (
