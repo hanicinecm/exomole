@@ -51,7 +51,10 @@ The code in the package is organised into several modules. The ``read_all`` and
 ExoMole's *.all* and *.def* meta-data files, while the ``read_data`` module groups
 functionality for reading and validating the *.states* and *.trans* data files.
 
-ExoMol .all master file
+The following sections describe some examples of usage of the package. For further
+documentation, refer to the codebase docstrings.
+
+The exomol.all master file
 -----------------------
 The ``exomole.read_all.AllParser`` is a class dedicated to reading and parsing the
 ExoMol master file *exomol.all*.
@@ -61,6 +64,7 @@ public API:
 .. code-block:: pycon
 
     >>> from exomole.read_all import AllParser
+
     >>> all_parser = AllParser()
 
 or from the ExoMol server, supplying the full path to the master file:
@@ -68,6 +72,7 @@ or from the ExoMol server, supplying the full path to the master file:
 .. code-block:: pycon
 
     >>> from pathlib import Path
+
     >>> # replace with the relevant path on the server:
     >>> exomol_data_path = Path("tests/resources/exomol_data")
     >>> all_parser = AllParser(path=exomol_data_path/"exomol.all")
@@ -121,10 +126,21 @@ server, or with a path leading to the data directory as a single argument:
 .. code-block:: pycon
 
     >>> from exomole.read_all import parse
-    >>>
+
     >>> # again, swap the path for the real one on the server
     >>> parse(data_dir_path="tests/resources/exomol_data")
     <AllParser: parsed>
+
+If the *exomol.all* file cannot be parsed for some reason (most likely because of the
+structure of the file does not agree with the defined standard), the ``AllParseError``
+is raised, hopefully detailing the reason.
+The ``AllParser`` can also be instantiated with the ``warn_on_comments=True`` flag,
+
+.. code-block:: pycon
+    >>> all_parser = AllParser(warn_on_comments=True)
+
+in which case the ``parse`` method will trigger warnings whenever some minor problems
+are detected in the file, such as inconsistent comments, blank lines, etc.
 
 
 For Developers:
