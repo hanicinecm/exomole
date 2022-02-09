@@ -137,6 +137,7 @@ is raised, hopefully detailing the reason.
 The ``AllParser`` can also be instantiated with the ``warn_on_comments=True`` flag,
 
 .. code-block:: pycon
+
     >>> all_parser = AllParser(warn_on_comments=True)
 
 in which case the ``parse`` method will trigger warnings whenever some minor problems
