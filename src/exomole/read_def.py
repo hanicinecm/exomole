@@ -504,9 +504,11 @@ def parse_def(isotopologue_slug, dataset_name=None, data_dir_path=None):
             f"No .def file for the {data_dir_path / wildcard} wildcard could be found!"
         )
     if len(def_files_available) > 1:
+        paths_available = "\n".join("  " + str(path) for path in def_files_available)
         raise DefParseError(
-            f"Multiple .def files found: {def_files_available}. Please pass the "
-            f"dataset_name argument"
+            f"Multiple .def files found:\n"
+            f"{paths_available}\n"
+            f"Please pass the dataset_name argument."
         )
     def_file_path = def_files_available[0]
     def_parser = DefParser(path=def_file_path)

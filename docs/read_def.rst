@@ -47,7 +47,7 @@ before it gets parsed:
 
 The ``DefParser`` can parse all the *.def* file data, if they adhere to the file
 standard defined in the `release paper`_, and it stores the parsed data in convenient
-nested data structures:
+nested data structures. This is done by calling the ``parse`` method:
 
 .. code-block:: pycon
 
@@ -98,7 +98,8 @@ methods are available for convenience:
     ['i', 'E', 'g_tot', 'J', 'tau', 'par', 'v', 'N', 'e/f']
 
 Finally, a high-level function is provided for a quick and convenient parsing and
-validation of dataset .def files identified by isotopologue slugs:
+validation of the dataset .def files identified by isotopologue slugs. This is only
+available if called on the ExoMol server.
 
 .. code-block:: pycon
 
@@ -111,7 +112,32 @@ validation of dataset .def files identified by isotopologue slugs:
     >>> def_data.get_quanta_labels()
     ['par', 'v', 'N', 'e/f']
 
-    >>> # TODO: Finish the doc with errors etc...
+If there is more than a single dataset available for the given isotopologue, an
+exception is raised and the ``dataset_name`` attribute needs to be passed to the
+``parse_def`` function also.
+
+.. code-block:: pycon
+
+    >>> def_data = parse_def("24Mg-1H", data_dir_path=exomol_data_dir)
+    Traceback (most recent call last):
+      ...
+    exomole.exceptions.DefParseError: Multiple .def files found:
+      tests/resources/exomol_data/MgH/24Mg-1H/MoLLIST/24Mg-1H__MoLLIST.def
+      tests/resources/exomol_data/MgH/24Mg-1H/Yadin/24Mg-1H__Yadin.def
+    Please pass the dataset_name argument.
+
+If the .def file cannot be parsed for some reason (most likely because of the
+structure of the file does not agree with the defined standard), the ``DefParseError``
+is raised, hopefully detailing the reason.
+
+The ``AllParser.parse`` method will also trigger warnings, whenever any minor problems
+are detected in the file, such as inconsistent comments, blank lines, etc.
+To suppress these warnings, the ``parse`` method can be called with the optional
+``warn_on_comments=False`` argument:
+
+.. code-block:: pycon
+
+    >>> def_parser.parse(warn_on_comments=False)
 
 
 .. _release paper: https://doi.org/10.1016/j.jms.2016.05.002

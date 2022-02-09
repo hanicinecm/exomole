@@ -36,7 +36,7 @@ supplied:
 
 The ``AllParser`` can parse all the master file data, if they adhere to the file
 standard defined in the `release paper`_, and it stores the parsed data in convenient
-nested structures:
+nested structures. This is done by calling the ``parse`` method:
 
 .. code-block:: pycon
 
@@ -86,14 +86,15 @@ single argument:
 If the *exomol.all* file cannot be parsed for some reason (most likely because of the
 structure of the file does not agree with the defined standard), the ``AllParseError``
 is raised, hopefully detailing the reason.
+
 The ``AllParser.parse`` method will also trigger warnings, whenever any minor problems
 are detected in the file, such as inconsistent comments, blank lines, etc.
 To suppress these warnings, the ``parse`` method can be called with the optional
-``warn_on_comments=False`` argument,
+``warn_on_comments=False`` argument:
 
 .. code-block:: pycon
 
-    >>> all_parser = all_parser.parse(warn_on_comments=False)
+    >>> all_parser.parse(warn_on_comments=False)
 
 
 .. _release paper: https://doi.org/10.1016/j.jms.2016.05.002
