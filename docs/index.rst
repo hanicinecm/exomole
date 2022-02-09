@@ -22,12 +22,9 @@ The code in the package is organised into several modules. The ``read_all`` and
 ExoMole's *.all* and *.def* meta-data files, while the ``read_data`` module groups
 functionality for reading and validating the *.states* and *.trans* data files.
 
-``read_all``
-  documentation
-``read_def``
-  documentation
-``read_data``
-  documentation
+- ``read_all`` `documentation <read_all.rst>`_
+- ``read_def`` `documentation <read_def.rst>`_
+- ``read_data`` `documentation <read_data.rst>`_
 
 
 .. _ExoMol: https://www.exomol.com/
