@@ -24,12 +24,9 @@ jobs:
       run: |
         pip install pytest-cov
         pip install black
-    - name: Generate test coverage report from unit tests only
+    - name: Generate test coverage report from unit tests
       run: |
-        pytest tests --cov --cov-report xml
-    - name: Run unit tests and test the docs
-      run: |
-        pytest
+        pytest --cov --cov-report xml
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
