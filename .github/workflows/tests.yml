@@ -12,17 +12,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.9
+    - name: Set up Python 3.6
       uses: actions/setup-python@v2
       with:
-        python-version: "3.9"
+        python-version: "3.6"
     - name: Install the package locally
       run: |
         python -m pip install --upgrade pip
         pip install .
     - name: Install dependencies for testing
       run: |
-        pip install pytest-cov
+        pip install pytest-cov==3.0.0
         pip install black
     - name: Run unit tests and test the docs
       run: |
