@@ -64,9 +64,10 @@ nested structures:
     >>> iso.inchi_key
     'TUJKJAMUKRIRHC-UHFFFAOYSA-N'
 
-Finally, a high-level function is provided, returning a parsed ``AllParser``, which
-needs to be called either without arguments from within the exomol directory on the
-server, or with a path leading to the data directory as a single argument:
+Finally, a high-level function is provided, returning a parsed ``AllParser`` instance.
+The ``parse`` function needs to be called either without arguments from within the
+exomol directory on the server, or with a path leading to the data directory as a
+single argument:
 
 .. code-block:: pycon
 
