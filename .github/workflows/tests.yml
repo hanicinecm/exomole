@@ -23,14 +23,13 @@ jobs:
     - name: Install dependencies for testing
       run: |
         pip install pytest-cov
-        pip install pytest==6.2.5
         pip install black
-    - name: Run unit tests and test the docs
-      run: |
-        pytest
     - name: Generate test coverage report from unit tests only
       run: |
         pytest tests --cov --cov-report xml
+    - name: Run unit tests and test the docs
+      run: |
+        pytest
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
