@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies for testing
       run: |
         pip install pytest
-        pip isntall coverage
+        pip install coverage
         pip install black
     - name: Generate test coverage report from unit tests
       run: |
