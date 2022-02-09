@@ -17,8 +17,8 @@ deps =
 commands = pytest
 """
 
-#[tool.coverage.run]
-#source = ["src/exomole"]
+[tool.coverage.run]
+source = ["src/exomole"]
 
 [tool.coverage.html]
 directory = "htmlcov"
