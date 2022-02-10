@@ -15,6 +15,7 @@
 
 
 .. image:: https://raw.githubusercontent.com/hanicinecm/exomole/master/docs/exomole.png
+    :align: center
 
 
 ***********************

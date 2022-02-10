@@ -8,7 +8,7 @@ long_description = (root / "README.rst").read_text(encoding="utf-8")
 
 setup(
     name="exomole",
-    version="1.2.10",
+    version="1.2.11",
     description="A package for parsing and validation of Exomol Database data files",
     long_description=long_description,
     long_description_content_type="text/x-rst",

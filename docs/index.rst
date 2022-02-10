@@ -15,6 +15,7 @@ production server, tapping into the ExoMol public API defined in the database
 
 
 .. image:: https://raw.githubusercontent.com/hanicinecm/exomole/master/docs/exomole.png
+    :align: center
 
 
 Documentation:
