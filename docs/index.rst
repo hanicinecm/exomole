@@ -28,9 +28,9 @@ functionality for reading and validating the *.states* and *.trans* data files.
 The links below provide some basic examples of usage of the code. For greater detail,
 refer to the code and docstrings.
 
-- ``read_all`` `examples <read_all.rst>`_
-- ``read_def`` `examples <read_def.rst>`_
-- ``read_data`` `examples <read_data.rst>`_
+- ``read_all`` (`examples <read_all.rst>`_)
+- ``read_def`` (`examples <read_def.rst>`_)
+- ``read_data`` (`examples <read_data.rst>`_)
 
 
 .. _ExoMol: https://www.exomol.com/
