@@ -6,7 +6,7 @@ Meet **ExoMole**, a creature that feeds on data and meta-data files of the
 ExoMol_ database.
 The ``exomole`` package provides code for parsing, validation and access to the ExoMol
 meta-data and data.
-The package is primarily used for ExoMol database developers and maintainers, as most of
+The package is primarily aimed at ExoMol database developers and maintainers, as most of
 the features require access to the ExoMol files. The code therefore works the best if
 installed directly on the ExoMol server.
 Nevertheless, several features of the package are also relevant from outside the ExoMol
