@@ -14,7 +14,7 @@
    :target: https://github.com/psf/black
 
 
-.. image:: docs/exomole.png
+.. image:: https://raw.githubusercontent.com/hanicinecm/exomole/master/docs/exomole.png
   :align: center
 
 
