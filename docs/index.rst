@@ -14,6 +14,11 @@ production server, tapping into the ExoMol public API defined in the database
 `release paper`_.
 
 
+.. image:: docs/exomole.png
+  :width: 450
+  :align: center
+
+
 Documentation:
 ==============
 
@@ -21,6 +26,9 @@ The code in the package is organised into several modules. The ``read_all`` and
 ``read_def`` modules contain functionality for parsing, validation and analysis of the
 ExoMole's *.all* and *.def* meta-data files, while the ``read_data`` module groups
 functionality for reading and validating the *.states* and *.trans* data files.
+
+The links below provide some basic examples of usage of the code. For greater detail,
+refer to the code and docstrings.
 
 - ``read_all`` `examples <read_all.rst>`_
 - ``read_def`` `examples <read_def.rst>`_
