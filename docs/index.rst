@@ -14,7 +14,7 @@ production server, tapping into the ExoMol public API defined in the database
 `release paper`_.
 
 
-.. image:: docs/exomole.png
+.. image:: ./exomole.png
   :width: 450
   :align: center
 
