@@ -481,7 +481,7 @@ class DefParser:
                 f"agree with the length of the expected .states header parsed from the "
                 f"{self.path.name} file ({len(self.get_states_header())})."
             )
-        if not list(dataset_dir.glob(f"{file_name}.trans*")):
+        if not list(dataset_dir.glob(f"{file_name}*.trans.bz2")):
             raise DefConsistencyError(f"No trans files found in {dataset_dir}!")
 
     def get_quanta_labels(self):
