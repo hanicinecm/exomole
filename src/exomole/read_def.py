@@ -465,12 +465,15 @@ class DefParser:
             self.parse(warn_on_comments=False)
         file_name = self.path.name[:-4]
         dataset_dir = self.path.parent
-        states_paths = list(dataset_dir.glob(f"{file_name}.states*"))
-        if len(states_paths) != 1:
+        for states_suffix in ["states", "states.bz2"]:
+            # some .states files are not bz2-compressed!
+            states_path = dataset_dir / f"{file_name}.{states_suffix}"
+            if states_path.is_file():
+                break
+        else:
             raise DefConsistencyError(
-                f"A '{file_name}.states*' file needs to exist in {dataset_dir}!"
+                f"A '{file_name}.states(.bz2)' file needs to exist in {dataset_dir}!"
             )
-        states_path = states_paths[0]
         num_columns = get_num_columns(states_path)
         if num_columns != len(self.get_states_header()):
             raise DefConsistencyError(

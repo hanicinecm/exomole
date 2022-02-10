@@ -120,7 +120,7 @@ It will raise ``DefConsistencyError`` if any of the checks fail:
     >>> def_parser.check_consistency()
     Traceback (most recent call last):
      ...
-    exomole.exceptions.DefConsistencyError: A '40Ca-1H__Yadin.states*' file needs to exist in tests/resources/exomol_data/CaH/40Ca-1H/Yadin!
+    exomole.exceptions.DefConsistencyError: A '40Ca-1H__Yadin.states(.bz2)' file needs to exist in tests/resources/exomol_data/CaH/40Ca-1H/Yadin!
 
 Finally, a high-level function is provided for a quick and convenient parsing and
 validation of the dataset .def files identified by isotopologue slugs. This is only
