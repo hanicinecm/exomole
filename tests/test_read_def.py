@@ -292,9 +292,7 @@ def test_check_consistency(monkeypatch):
         )
     )
     def_parser.parse(warn_on_comments=False)
-    with pytest.raises(
-        DefConsistencyError, match=".* file needs to exist .*"
-    ):
+    with pytest.raises(DefConsistencyError, match=".* file needs to exist .*"):
         def_parser.check_consistency()
 
     def_parser = DefParser(
@@ -303,7 +301,5 @@ def test_check_consistency(monkeypatch):
         )
     )
     def_parser.parse(warn_on_comments=False)
-    with pytest.raises(
-            DefConsistencyError, match="No trans files found .*"
-    ):
+    with pytest.raises(DefConsistencyError, match="No trans files found .*"):
         def_parser.check_consistency()
