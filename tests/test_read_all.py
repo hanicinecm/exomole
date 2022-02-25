@@ -2,7 +2,7 @@ import pytest
 
 import exomole
 from exomole.exceptions import AllParseError, AllParseWarning, LineWarning
-from exomole.read_all import AllParser, Molecule, Isotopologue
+from exomole.read_all import AllParser, Molecule, Isotopologue, parse_master
 from . import resources_path
 
 example_all_path = resources_path.joinpath("exomol_data", "exomol.all")
@@ -176,3 +176,12 @@ def test_unexpected_file_id(monkeypatch):
     all_parser = AllParser()
     with pytest.raises(AllParseError, match=".*Unexpected ID*"):
         all_parser.parse(warn_on_comments=False)
+
+
+def test_parse_master(monkeypatch):
+    monkeypatch.setattr(
+        exomole.read_all.AllParser, "parse", lambda *args, **kwargs: None
+    )
+    parser = parse_master(example_all_path.parent)
+    assert parser.raw_text == example_all_raw_text
+    assert parser.file_name == "exomol.all"

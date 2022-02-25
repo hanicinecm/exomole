@@ -4,7 +4,13 @@ import pytest
 
 import exomole
 from exomole.exceptions import DefParseError, LineWarning
-from exomole.read_def import DefParser, Isotope, QuantumCase, Quantum
+from exomole.read_def import (
+    DefParser,
+    Isotope,
+    QuantumCase,
+    Quantum,
+    DefConsistencyError,
+)
 from . import resources_path
 
 example_def_path = resources_path.joinpath(
@@ -259,3 +265,45 @@ def test_duplicated_isotopes(monkeypatch):
         def_parser.parse(warn_on_comments=True)
     assert not record
     assert len(def_parser.isotopes) == 3
+
+
+def test_check_consistency_over_api(monkeypatch):
+    monkeypatch.setattr(DefParser, "_save_raw_text", lambda *args, **kwargs: None)
+    def_parser = DefParser(molecule_slug="", isotopologue_slug="", dataset_name="")
+    with pytest.raises(AssertionError):
+        def_parser.check_consistency()
+
+
+def test_check_consistency(monkeypatch):
+    def_parser = DefParser(path=example_def_path)
+    def_parser.parse(warn_on_comments=False)
+    assert len(def_parser.get_states_header()) == 9
+
+    monkeypatch.setattr(exomole.read_def, "get_num_columns", lambda x: 10)
+    with pytest.raises(DefConsistencyError, match=".* number of columns .*"):
+        def_parser.check_consistency()
+
+    monkeypatch.setattr(exomole.read_def, "get_num_columns", lambda x: 9)
+    def_parser.check_consistency()
+
+    def_parser = DefParser(
+        path=resources_path.joinpath(
+            "exomol_data", "CaH", "40Ca-1H_only-def", "Yadin", "40Ca-1H__Yadin.def"
+        )
+    )
+    def_parser.parse(warn_on_comments=False)
+    with pytest.raises(
+        DefConsistencyError, match=".* file needs to exist .*"
+    ):
+        def_parser.check_consistency()
+
+    def_parser = DefParser(
+        path=resources_path.joinpath(
+            "exomol_data", "CaH", "40Ca-1H_no-trans", "Yadin", "40Ca-1H__Yadin.def"
+        )
+    )
+    def_parser.parse(warn_on_comments=False)
+    with pytest.raises(
+            DefConsistencyError, match="No trans files found .*"
+    ):
+        def_parser.check_consistency()
