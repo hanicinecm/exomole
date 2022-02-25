@@ -552,7 +552,7 @@ def parse_def(isotopologue_slug, dataset_name=None, data_dir_path="."):
     if dataset_name is None:
         dataset_name = "*"
     wildcard = (
-        f"*/{isotopologue_slug}/{dataset_name}/{isotopologue_slug}_{dataset_name}.def"
+        f"*/{isotopologue_slug}/{dataset_name}/{isotopologue_slug}__{dataset_name}.def"
     )
     def_files_available = sorted(data_dir_path.glob(wildcard))
     if not def_files_available:

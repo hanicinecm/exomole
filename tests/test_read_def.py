@@ -10,6 +10,7 @@ from exomole.read_def import (
     QuantumCase,
     Quantum,
     DefConsistencyError,
+    parse_def,
 )
 from . import resources_path
 
@@ -311,3 +312,44 @@ def test_check_consistency(monkeypatch):
     def_parser.parse(warn_on_comments=False)
     with pytest.raises(DefConsistencyError, match="No trans files found .*"):
         def_parser.check_consistency()
+
+    # and without parsing:
+    def_parser = DefParser(
+        path=resources_path.joinpath(
+            "exomol_data",
+            "CaH",
+            "40Ca-1H_states-and-trans",
+            "Yadin",
+            "40Ca-1H__Yadin.def",
+        )
+    )
+    def_parser.check_consistency()
+
+
+def test_parse_def_all_good(monkeypatch):
+    parser = parse_def(
+        isotopologue_slug="40Ca-1H", data_dir_path=resources_path / "exomol_data"
+    )
+    assert parser.parsed is True
+
+    monkeypatch.setattr(DefParser, "parse", lambda *args, **kwargs: None)
+    parser = parse_def(
+        isotopologue_slug="24Mg-1H",
+        dataset_name="Yadin",
+        data_dir_path=resources_path / "exomol_data",
+    )
+    assert parser.parsed is False  # the .parse was monkey-patched so the flag remains
+
+
+def test_parse_def_failing():
+    with pytest.raises(DefParseError, match="No .def file .*"):
+        parse_def(
+            isotopologue_slug="40Ca-1H_empty-dir",
+            data_dir_path=resources_path / "exomol_data",
+        )
+
+    with pytest.raises(DefParseError, match="Multiple .def files .*"):
+        parse_def(
+            isotopologue_slug="24Mg-1H",
+            data_dir_path=resources_path / "exomol_data",
+        )
