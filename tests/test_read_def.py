@@ -275,7 +275,15 @@ def test_check_consistency_over_api(monkeypatch):
 
 
 def test_check_consistency(monkeypatch):
-    def_parser = DefParser(path=example_def_path)
+    def_parser = DefParser(
+        path=resources_path.joinpath(
+            "exomol_data",
+            "CaH",
+            "40Ca-1H_states-and-trans",
+            "Yadin",
+            "40Ca-1H__Yadin.def",
+        )
+    )
     def_parser.parse(warn_on_comments=False)
     assert len(def_parser.get_states_header()) == 9
 
