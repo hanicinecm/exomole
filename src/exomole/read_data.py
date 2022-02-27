@@ -10,12 +10,15 @@ from .exceptions import DataParseError, StatesParseError, TransParseError
 from .utils import load_dataframe_chunks, get_num_columns
 
 
-def states_chunks(states_path, chunk_size, columns):
+def states_chunks(states_path, columns, chunk_size=1_000_000):
     """
     Get a generator of chunks of the dataset *.states.bz2* file.
 
     Generator of `pandas.DataFrame` chunks of the *.states* file, with
     rows indexed by the values of the first column in the *.states* file.
+    Alternatively to the *.bz2 compressed files, the function can handle uncompressed
+    *.states files also (the presence of compression is automatically determined from
+    the path name).
 
     The `columns` argument passed needs to contain names for *all* the columns
     *including the first* column, which is assumed to be the `states` index.
@@ -33,7 +36,7 @@ def states_chunks(states_path, chunk_size, columns):
     ----------
     states_path : str or Path
         Path to the *.states* file on the local file system.
-    chunk_size : int
+    chunk_size : int, optional
         Chunk size, should be chosen appropriately with regards to the RAM size.
         Roughly 1_000_000 per 1GB consumed.
     columns : iterable of str
@@ -89,12 +92,16 @@ def states_chunks(states_path, chunk_size, columns):
         yield chunk
 
 
-def trans_chunks(trans_paths, chunk_size):
+def trans_chunks(trans_paths, chunk_size=10_000_000):
     """
     Get a generator of chunks of the dataset *.trans.bz* files.
 
     Generator of `pandas.DataFrame` chunks of all the *.trans* files passed as the
     `trans_paths` argument value.
+    Alternatively to the *.bz2 compressed files, the function can handle uncompressed
+    *.trans files also (the presence of compression is automatically determined from
+    the path name).
+
     The columns are auto-named as ``"i", "f", "A_if" [, "v_if"]``.
     The ``"i"`` and ``"f"`` columns will correspond to the index of the `DataFrames`
     yielded by the `states_chunks` generator.
@@ -107,7 +114,7 @@ def trans_chunks(trans_paths, chunk_size):
     trans_paths : iterable of (str or Path)
         Paths to the *.trans* files on the local file system. They all need to belong to
         the same dataset, but no checks are made to assert that!
-    chunk_size : int
+    chunk_size : int, optional
         Chunk size, should be chosen appropriately with regards to RAM size, roughly
         10_000_000 per 1GB consumed.
 

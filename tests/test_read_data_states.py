@@ -43,7 +43,7 @@ def test_consistent_columns():
 def test_chunk_size(chunk_size, num_chunks):
     columns = "i a b c d".split()
     assert (
-        len(list(states_chunks(dummy_states_path, chunk_size, columns))) == num_chunks
+        len(list(states_chunks(dummy_states_path, columns, chunk_size))) == num_chunks
     )
 
 
@@ -51,20 +51,22 @@ def test_chunk_size(chunk_size, num_chunks):
 def test_dtype_cast(col):
     dtype = "O"
     columns = "i a b c d".split()
-    for chunk in states_chunks(dummy_states_path, 2, columns):
+    for chunk in states_chunks(dummy_states_path, columns=columns, chunk_size=2):
         assert chunk[col].dtype == dtype
 
 
 def test_index_dtype():
     dtype = "int64"
     columns = "i a b c d".split()
-    for chunk in states_chunks(dummy_states_path, 2, columns):
+    for chunk in states_chunks(dummy_states_path, columns=columns, chunk_size=2):
         assert chunk.index.dtype == dtype
 
 
 def test_incompatible_columns():
     with pytest.raises(StatesParseError):
-        for _ in states_chunks(dummy_states_path, 2, columns="foo a b c d".split()):
+        for _ in states_chunks(
+                dummy_states_path, chunk_size=2, columns="foo a b c d".split()
+        ):
             pass
 
 
