@@ -65,7 +65,7 @@ def test_index_dtype():
 def test_incompatible_columns():
     with pytest.raises(StatesParseError):
         for _ in states_chunks(
-                dummy_states_path, chunk_size=2, columns="foo a b c d".split()
+            dummy_states_path, chunk_size=2, columns="foo a b c d".split()
         ):
             pass
 
